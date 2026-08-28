@@ -42,7 +42,7 @@
     "productName": "CheetahSoft",
     "copyright": "© 2026 CheetahSoft",
     "directories": {
-      "output": "dist-app"
+      "output": "dist-release"
     },
     "files": [
       "electron/**/*",
