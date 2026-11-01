@@ -1,81 +1,71 @@
-'use client';
+import type { Metadata } from 'next';
+import ContactForm from '@/components/ContactForm';
+import { PageHero } from '@/components/ui';
+import { CONTACT, PARCOURS } from '@/content/cheetah';
 
-import { motion } from 'framer-motion';
+export const metadata: Metadata = {
+  title: 'Demander une démonstration',
+  description:
+    'Trente minutes sur un de vos projets. On monte vos lignes budgétaires dans Cheetah et vous jugez sur pièce.',
+};
 
-export default function Contact() {
+export default function Page() {
   return (
-    <main className="bg-gradient-to-br from-green-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 min-h-screen text-gray-900 dark:text-white overflow-hidden font-sans">
-      {/* ACTE I — Invocationis Initium */}
-      <section className="text-center py-32 px-6 md:px-20">
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-5xl md:text-6xl font-extrabold mb-6"
-        >
-          Vocatio Cheetah Soft
-        </motion.h1>
-        <p className="text-lg md:text-xl max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          Per litteras vel verba, nexus incipit. Dic nobis quid velis ordinare.
-        </p>
-      </section>
+    <>
+      <PageHero
+        fil={[{ label: 'Accueil', href: '/' }, { label: 'Contact' }]}
+        eyebrow="Prise de contact"
+        titre={
+          <>
+            Apportez un projet.
+            <br />
+            De préférence un qui dérive.
+          </>
+        }
+        chapeau="La démonstration se fait sur vos données, pas sur un jeu de catalogue. À la fin de l’échange, vous savez si Cheetah vous sert — et si non, on vous le dit."
+      />
 
-      {/* ACTE II — Forma Sacra */}
-      <section className="py-24 px-6 md:px-20 relative z-10">
-        <motion.form
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="max-w-3xl mx-auto bg-white dark:bg-gray-900/50 backdrop-blur-xl p-10 rounded-3xl border border-gray-200 dark:border-white/10 shadow-2xl"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <label className="block mb-2 text-sm font-medium">Nomen</label>
-              <input
-                type="text"
-                className="w-full px-5 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none focus:outline-none focus:ring-2 focus:ring-green-400"
-                placeholder="Tuus nomen..."
-              />
-            </div>
-            <div>
-              <label className="block mb-2 text-sm font-medium">Email</label>
-              <input
-                type="email"
-                className="w-full px-5 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none focus:outline-none focus:ring-2 focus:ring-orange-400"
-                placeholder="tu@email.com"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block mb-2 text-sm font-medium">Nuntius</label>
-              <textarea
-                rows={5}
-                className="w-full px-5 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none focus:outline-none focus:ring-2 focus:ring-orange-300"
-                placeholder="Scribe hic tuum desiderium..."
-              ></textarea>
-            </div>
+      <section className="bg-ink-900 py-20 md:py-28">
+        <div className="shell grid gap-14 lg:grid-cols-12 lg:gap-20">
+          <div className="lg:col-span-7">
+            <ContactForm />
           </div>
-          <div className="mt-10 text-center">
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-green-500 to-orange-400 text-white font-bold px-10 py-3 rounded-full shadow-xl hover:scale-105 transition"
-            >
-              Transmittere
-            </button>
-          </div>
-        </motion.form>
-      </section>
 
-      {/* ACTE III — Desinitio Poetica */}
-      <section className="py-20 text-center">
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="text-xl italic text-gray-600 dark:text-gray-400"
-        >
-          &ldquo;In verbo initium. In actu transformatio.&rdquo;
-        </motion.p>
+          <aside className="lg:col-span-5">
+            <p className="eyebrow">Comment ça se passe</p>
+            <ol className="mt-8 space-y-px">
+              {PARCOURS.map((p) => (
+                <li key={p.n} className="reveal border-t border-white/[0.08] py-6">
+                  <div className="flex items-baseline gap-4">
+                    <span className="num text-xs text-volt">{p.n}</span>
+                    <div>
+                      <h2 className="text-base font-semibold text-paper">{p.titre}</h2>
+                      <p className="mt-0.5 font-mono text-[0.625rem] uppercase tracking-[0.16em] text-steel-500">
+                        {p.duree}
+                      </p>
+                      <p className="body-copy mt-3 text-sm">{p.texte}</p>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="mt-10 border-t border-white/[0.08] pt-8">
+              <p className="eyebrow">Écrire directement</p>
+              <a
+                href={`mailto:${CONTACT.email}`}
+                className="mt-4 block font-mono text-lg text-volt underline-offset-4 hover:underline"
+              >
+                {CONTACT.email}
+              </a>
+              <p className="mt-4 max-w-sm text-xs leading-relaxed text-steel-500">
+                Nous ne pratiquons ni relance automatisée, ni inscription à une liste de diffusion.
+                Votre message sert à préparer l’échange, rien d’autre.
+              </p>
+            </div>
+          </aside>
+        </div>
       </section>
-    </main>
+    </>
   );
 }

@@ -68,7 +68,7 @@ function createWindow(port) {
       nodeIntegration: false,
       contextIsolation: true,
     },
-    icon: path.join(__dirname, '..', 'public', 'logo-cheetahsoft.jpg'),
+    icon: path.join(__dirname, '..', 'public', 'logo-cheetah-256.png'),
     title: 'CheetahSoft — Project Management Software',
     show: false,
     backgroundColor: '#F5F1E8',

@@ -31,6 +31,7 @@ jobs:
         run: npx next build
         env:
           NEXT_PUBLIC_BASE_PATH: /site-vitrine
+          NEXT_PUBLIC_SITE_URL: https://santana64.github.io/site-vitrine
 
       - uses: actions/upload-pages-artifact@v3
         with:

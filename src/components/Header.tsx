@@ -1,138 +1,224 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-
-const navLinks = [
-  { href: '#modules', label: 'Modules' },
-  { href: '#methode', label: 'Méthode FGF' },
-  { href: '#securite', label: 'Sécurité' },
-  { href: '#tarifs', label: 'Tarifs' },
-  { href: '#contact', label: 'Contact' },
-];
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { NAV } from '@/content/cheetah';
 
 export function Header() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [mobile, setMobile] = useState(false);
+  const navRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    setOpenMenu(null);
+    setMobile(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setOpenMenu(null);
+      setMobile(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = mobile ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobile]);
+
+  const scheduleClose = useCallback(() => {
+    if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => setOpenMenu(null), 140);
+  }, []);
+
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) window.clearTimeout(closeTimer.current);
+  }, []);
+
+  const isActive = (href: string) => pathname === href || pathname === href.replace(/\/$/, '');
+
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrolled
-          ? 'bg-cheetah-green-dark/95 backdrop-blur-xl shadow-lg shadow-black/20 border-b border-cheetah-green/20'
-          : 'bg-transparent'
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500 ${
+        scrolled || mobile || openMenu
+          ? 'border-b border-white/[0.07] bg-ink-900/85 backdrop-blur-xl'
+          : 'border-b border-transparent bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          {/* Logo image — circular */}
-          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-cheetah-green/30 group-hover:ring-cheetah-green/60 transition-all duration-300 bg-white">
-            <Image
-              src="/logo-cheetahsoft.jpg"
-              alt="CheetahSoft logo"
-              width={40}
-              height={40}
-              className="w-full h-full object-cover"
-              priority
-            />
-          </div>
-          {/* Wordmark */}
-          <div className="flex flex-col leading-none">
-            <span className="text-white font-black text-lg tracking-tight group-hover:text-[#7ddf83] transition-colors duration-300">
+      <div className="shell flex h-[4.5rem] items-center justify-between gap-6">
+        <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="CheetahSoft — accueil">
+          <span className="relative block h-9 w-9 overflow-hidden rounded-full bg-white ring-1 ring-white/15">
+            <Image src="/logo-cheetah-128.webp" alt="" width={36} height={36} className="h-full w-full object-cover" priority />
+          </span>
+          <span className="leading-none">
+            <span className="block font-display text-[1.0625rem] font-extrabold tracking-tight text-paper">
               CheetahSoft
             </span>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="w-8 h-px bg-gradient-to-r from-cheetah-green to-cheetah-orange opacity-70" />
-              <span className="text-cheetah-orange text-[9px] font-bold tracking-[0.28em] uppercase opacity-90">
-                COST · TIME · DOC
-              </span>
-            </div>
-          </div>
+            <span className="mt-[3px] block font-mono text-[0.5625rem] uppercase tracking-[0.3em] text-steel-400 transition-colors group-hover:text-volt">
+              Cost · Time · Doc
+            </span>
+          </span>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-7">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-white/70 hover:text-white text-sm font-medium transition-all duration-200 hover:text-cheetah-green relative group"
-            >
-              {link.label}
-              <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-cheetah-green group-hover:w-full transition-all duration-300" />
-            </a>
-          ))}
-        </nav>
+        {/* Navigation desktop */}
+        <div ref={navRef} className="hidden items-center gap-1 lg:flex">
+          {NAV.map((item) =>
+            'enfants' in item && item.enfants ? (
+              <div
+                key={item.label}
+                className="relative"
+                onMouseEnter={() => {
+                  cancelClose();
+                  setOpenMenu(item.label);
+                }}
+                onMouseLeave={scheduleClose}
+              >
+                <button
+                  type="button"
+                  aria-expanded={openMenu === item.label}
+                  aria-haspopup="true"
+                  onClick={() => setOpenMenu(openMenu === item.label ? null : item.label)}
+                  className={`flex items-center gap-1.5 rounded-sm px-3 py-2 text-sm font-medium transition-colors ${
+                    openMenu === item.label ? 'text-volt' : 'text-steel-200 hover:text-paper'
+                  }`}
+                >
+                  {item.label}
+                  <svg
+                    width="9"
+                    height="6"
+                    viewBox="0 0 9 6"
+                    aria-hidden="true"
+                    className={`transition-transform duration-200 ${openMenu === item.label ? 'rotate-180' : ''}`}
+                  >
+                    <path d="M1 1l3.5 3.5L8 1" stroke="currentColor" strokeWidth="1.4" fill="none" />
+                  </svg>
+                </button>
 
-        {/* CTA */}
-        <div className="hidden md:flex items-center gap-3">
-          <a
-            href="#contact"
-            className="relative bg-cheetah-green hover:bg-cheetah-green-mid text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-all duration-200 hover:scale-105 glow-green overflow-hidden group"
-          >
-            <span className="relative z-10">Demander une démo</span>
-            <span className="absolute inset-0 bg-gradient-to-r from-cheetah-green to-cheetah-green-mid opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </a>
+                {openMenu === item.label && (
+                  <div
+                    className="absolute left-0 top-full w-[22rem] pt-3"
+                    onMouseEnter={cancelClose}
+                    onMouseLeave={scheduleClose}
+                  >
+                    <div className="panel corner-ticks overflow-hidden p-1.5">
+                      {item.enfants.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className="group block rounded-sm px-3.5 py-3 transition-colors hover:bg-white/[0.045]"
+                        >
+                          <span className="block text-sm font-semibold text-paper transition-colors group-hover:text-volt">
+                            {child.label}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-steel-400">{child.desc}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`rounded-sm px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive(item.href) ? 'text-volt' : 'text-steel-200 hover:text-paper'
+                }`}
+              >
+                {item.label}
+              </Link>
+            )
+          )}
         </div>
 
-        {/* Mobile toggle */}
+        <div className="hidden lg:block">
+          <Link href="/contact/" className="btn btn-primary !min-h-0 !px-4 !py-2.5 !text-[0.8125rem]">
+            Demander une démonstration
+          </Link>
+        </div>
+
+        {/* Bascule mobile */}
         <button
-          className="md:hidden text-white p-2 hover:text-cheetah-green transition-colors"
-          aria-label="Toggle menu"
-          onClick={() => setMobileOpen(!mobileOpen)}
+          type="button"
+          className="-mr-2 flex h-12 w-12 items-center justify-center text-paper lg:hidden"
+          aria-expanded={mobile}
+          aria-controls="menu-mobile"
+          aria-label={mobile ? 'Fermer le menu' : 'Ouvrir le menu'}
+          onClick={() => setMobile((v) => !v)}
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {mobileOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
+          <span className="relative block h-3.5 w-6">
+            <span
+              className={`absolute left-0 block h-px w-full bg-current transition-transform duration-300 ${
+                mobile ? 'top-1.5 rotate-45' : 'top-0'
+              }`}
+            />
+            <span
+              className={`absolute left-0 top-1.5 block h-px w-full bg-current transition-opacity duration-200 ${
+                mobile ? 'opacity-0' : 'opacity-100'
+              }`}
+            />
+            <span
+              className={`absolute left-0 block h-px w-full bg-current transition-transform duration-300 ${
+                mobile ? 'top-1.5 -rotate-45' : 'top-3'
+              }`}
+            />
+          </span>
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
-            className="md:hidden bg-cheetah-green-dark border-t border-cheetah-green/20 overflow-hidden"
-          >
-            <div className="flex flex-col p-4 gap-1">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="text-white/80 hover:text-white hover:bg-cheetah-green/10 px-4 py-3 rounded-lg transition-colors text-sm font-medium"
+      {/* Panneau mobile */}
+      {mobile && (
+        <div
+          id="menu-mobile"
+          className="h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-white/[0.07] bg-ink-900 lg:hidden"
+        >
+          <nav className="shell flex flex-col py-6">
+            {NAV.map((item) => (
+              <div key={item.label} className="border-b border-white/[0.06] py-1">
+                <Link
+                  href={item.href}
+                  className="flex min-h-[52px] items-center font-display text-xl font-bold tracking-tight text-paper"
                 >
-                  {link.label}
-                </a>
-              ))}
-              <a
-                href="#contact"
-                onClick={() => setMobileOpen(false)}
-                className="mt-3 bg-cheetah-green text-white text-center font-bold px-5 py-3 rounded-lg"
-              >
-                Demander une démo
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  {item.label}
+                </Link>
+                {'enfants' in item && item.enfants && (
+                  <div className="mb-3 flex flex-col gap-0.5 pl-3">
+                    {item.enfants.map((c) => (
+                      <Link
+                        key={c.href}
+                        href={c.href}
+                        className="flex min-h-[44px] items-center text-sm text-steel-300"
+                      >
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            <Link href="/contact/" className="btn btn-primary mt-7 w-full">
+              Demander une démonstration
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

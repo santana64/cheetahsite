@@ -2,164 +2,428 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════
+   CHEETAH DESIGN SYSTEM — "CONTROL CORE"
+   Tokens · typographie · surfaces · motion
+   ═══════════════════════════════════════════════════════════════════ */
+
 :root {
-  --green: #56a45b;
-  --green-mid: #3f8f48;
-  --green-deep: #1a4a20;
-  --green-dark: #0e2714;
-  --orange: #f4a321;
-  --orange-dark: #d97706;
-  --cream: #F5F1E8;
-  --cream-light: #F8F5EE;
+  /* Surfaces — graphite / obsidienne */
+  --ink-900: #06080a;
+  --ink-850: #090c10;
+  --ink-800: #0d1116;
+  --ink-700: #12171e;
+  --ink-600: #19202a;
+  --ink-500: #222b37;
+  --ink-400: #2e3946;
+
+  /* Texte */
+  --paper: #eef2f6;
+  --steel-200: #c2ccd8;
+  --steel-300: #93a3b5;
+  --steel-400: #6b7a8d;
+  --steel-500: #55616f;
+
+  /* Surfaces claires — actes produit */
+  --bone: #eceae4;
+  --bone-light: #f4f2ec;
+  --bone-dark: #d9d6cc;
+
+  /* Accents — un par dimension de pilotage */
+  --volt: #cdf564; /* Cost · précision */
+  --volt-dim: #a3c742;
+  --amber: #f2a93b; /* Time · temporalité */
+  --champagne: #e9c9a0; /* Doc · matière, archive */
+  --drift: #f2605b; /* signal de dérive */
+
+  /* Rythme */
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --rule: 1px solid rgba(147, 163, 181, 0.14);
+
+  /* Motion */
+  --ease-cheetah: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-gate: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur-base: 420ms;
+  --dur-slow: 900ms;
+
+  color-scheme: dark;
 }
 
-* { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background: var(--ink-900);
+}
 
 body {
+  background: var(--ink-900);
+  color: var(--paper);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--cream);
+  overflow-x: hidden;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(86,164,91,0.35); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(86,164,91,0.65); }
+::selection {
+  background: rgba(205, 245, 100, 0.24);
+  color: var(--paper);
+}
 
-/* Selection */
-::selection { background: rgba(244,163,33,0.22); color: #1a4a20; }
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink-900);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-500);
+  border: 3px solid var(--ink-900);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--steel-500);
+}
 
-@layer utilities {
+/* Focus visible — accessibilité clavier sur toute l'interface */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--volt);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
 
-  /* Gradient text — green → orange */
-  .gradient-text {
-    background: linear-gradient(135deg, #1a4a20 0%, #56a45b 45%, #f4a321 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+/* Lien d'évitement */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 200;
+  background: var(--volt);
+  color: var(--ink-900);
+  padding: 0.75rem 1.25rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+}
+
+@layer components {
+  /* ── Grille éditoriale ─────────────────────────────────────────── */
+  .shell {
+    width: 100%;
+    max-width: 82rem;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
   }
-  .gradient-text-bright {
-    background: linear-gradient(135deg, #56a45b 0%, #7ddf83 45%, #f4a321 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+
+  .rule-top {
+    border-top: var(--rule);
   }
 
-  /* Speed lines — Cheetah signature diagonal pattern */
-  .speed-bg {
-    background:
-      linear-gradient(135deg, #1a4a20 0%, #0e2714 50%, #0d1f10 100%),
-      repeating-linear-gradient(
-        -62deg,
-        transparent,
-        transparent 18px,
-        rgba(86,164,91,0.04) 18px,
-        rgba(86,164,91,0.04) 20px
-      );
-    background-blend-mode: normal, overlay;
+  /* ── Typographie ───────────────────────────────────────────────── */
+  .display-xl {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.75rem, 9.2vw, 8.5rem);
+    /* Interlignage ouvert sur petit écran : à 0.88 les lignes d'un titre de
+       trois lignes se télescopent. Resserré au-delà du pli tablette. */
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
   }
 
-  /* Aurora blobs */
-  .aurora-bg {
-    background:
-      radial-gradient(ellipse 900px 520px at 6% 0%, rgba(86,164,91,0.13), transparent 65%),
-      radial-gradient(ellipse 700px 450px at 96% 4%, rgba(244,163,33,0.09), transparent 60%),
-      linear-gradient(180deg, #F5F1E8 0%, #F8F5EE 100%);
+  .display-lg {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.1rem, 6vw, 5rem);
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
   }
 
-  /* Aurora card — animated gradient border on hover */
-  .aurora-card {
+  .display-md {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3.4vw, 2.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .display-sm {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  @media (min-width: 768px) {
+    .display-xl {
+      line-height: 0.88;
+    }
+    .display-lg {
+      line-height: 0.92;
+    }
+  }
+
+  .lede {
+    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+    line-height: 1.58;
+    color: var(--steel-200);
+    max-width: 40rem;
+  }
+
+  .body-copy {
+    font-size: 1rem;
+    line-height: 1.68;
+    color: var(--steel-300);
+  }
+
+  /* Étiquette technique — omniprésente dans le système */
+  .eyebrow {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--steel-400);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  .num {
+    font-family: var(--font-mono), monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Surfaces ──────────────────────────────────────────────────── */
+  .panel {
+    background: linear-gradient(170deg, rgba(25, 32, 42, 0.86), rgba(13, 17, 22, 0.94));
+    border: 1px solid rgba(147, 163, 181, 0.12);
+    border-radius: 4px;
     position: relative;
-    background: rgba(255,255,255,0.92);
-    border: 1px solid rgba(0,0,0,0.09);
-    transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1), border-color 0.3s ease;
   }
-  .aurora-card::before {
+
+  .panel-light {
+    background: var(--bone-light);
+    border: 1px solid var(--bone-dark);
+    border-radius: 4px;
+    color: var(--ink-800);
+  }
+
+  /* Coins techniques — signature graphique Cheetah */
+  .corner-ticks::before,
+  .corner-ticks::after {
     content: '';
     position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, #56a45b, #f4a321, rgba(96,160,255,0.6), #56a45b, #f4a321);
-    background-size: 300% 300%;
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    animation: gradientX 5s linear infinite;
-    transition: opacity 0.3s ease;
+    width: 10px;
+    height: 10px;
+    border-color: var(--volt);
+    opacity: 0.55;
     pointer-events: none;
   }
-  .aurora-card:hover::before { opacity: 1; }
-  .aurora-card:hover {
-    transform: translateY(-4px) scale(1.013);
-    box-shadow:
-      0 0 0 1px rgba(86,164,91,0.08),
-      0 4px 8px -2px rgba(26,74,32,0.10),
-      0 20px 48px -12px rgba(26,74,32,0.20),
-      0 0 80px -40px rgba(244,163,33,0.14);
+  .corner-ticks::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  .corner-ticks::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
   }
 
-  /* Dark glass card */
-  .glass-dark {
-    background: rgba(13,31,16,0.65);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    border: 1px solid rgba(86,164,91,0.15);
-  }
-
-  /* Light glass card */
-  .glass-light {
-    background: rgba(255,255,255,0.75);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.62);
-  }
-
-  /* Brand separator — 2px green→orange bar */
-  .brand-sep {
-    height: 2px;
-    background: linear-gradient(90deg, #56a45b, #f4a321);
-    opacity: 0.55;
+  /* ── Boutons ───────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.875rem 1.5rem;
     border-radius: 2px;
+    transition: background var(--dur-fast) var(--ease-cheetah),
+      color var(--dur-fast) var(--ease-cheetah), border-color var(--dur-fast) var(--ease-cheetah),
+      transform var(--dur-fast) var(--ease-cheetah);
+    min-height: 48px;
   }
 
-  /* Glow utilities */
-  .glow-green {
-    box-shadow: 0 0 20px rgba(86,164,91,0.22), 0 0 60px rgba(86,164,91,0.08);
+  .btn-primary {
+    background: var(--volt);
+    color: var(--ink-900);
+    border: 1px solid var(--volt);
   }
-  .glow-orange {
-    box-shadow: 0 0 20px rgba(244,163,33,0.22), 0 0 60px rgba(244,163,33,0.08);
+  .btn-primary:hover {
+    background: #dcff7d;
+    border-color: #dcff7d;
   }
-  .glow-green-strong {
-    box-shadow: 0 0 0 1px rgba(86,164,91,0.2), 0 8px 24px rgba(26,74,32,0.25), 0 0 60px rgba(86,164,91,0.12);
+  .btn-primary:active {
+    transform: translateY(1px);
   }
 
-  /* Status pills */
-  .status-ok    { background: rgba(5,150,105,0.09); border: 1px solid rgba(5,150,105,0.22); color: #065f46; }
-  .status-watch { background: rgba(245,158,11,0.09); border: 1px solid rgba(245,158,11,0.25); color: #92400e; }
-  .status-crit  { background: rgba(239,68,68,0.09); border: 1px solid rgba(239,68,68,0.22); color: #991b1b; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(147, 163, 181, 0.3);
+  }
+  .btn-ghost:hover {
+    border-color: var(--volt);
+    color: var(--volt);
+  }
 
-  /* Section label style */
-  .label-tag {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
+  .btn-dark {
+    background: var(--ink-800);
+    color: var(--paper);
+    border: 1px solid var(--ink-800);
+  }
+  .btn-dark:hover {
+    background: var(--ink-600);
+  }
+
+  /* ── Tableaux de données ───────────────────────────────────────── */
+  .data-grid {
+    font-family: var(--font-mono), monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.78rem;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .data-grid th {
+    text-align: right;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #56a45b;
+    font-size: 0.625rem;
+    color: var(--steel-400);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid rgba(147, 163, 181, 0.18);
+    white-space: nowrap;
+  }
+  .data-grid th:first-child,
+  .data-grid td:first-child {
+    text-align: left;
+  }
+  .data-grid td {
+    text-align: right;
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid rgba(147, 163, 181, 0.07);
+    color: var(--steel-200);
+    white-space: nowrap;
   }
 
-  /* Shimmer text */
-  .shimmer-text {
-    background: linear-gradient(
-      90deg,
-      #1a4a20 0%, #56a45b 18%, #f4a321 36%, #56a45b 54%, #1a4a20 72%, #56a45b 90%, #1a4a20 100%
+  /* ── Révélation au scroll ──────────────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s var(--ease-cheetah), transform 0.7s var(--ease-cheetah);
+    will-change: opacity, transform;
+  }
+  .reveal[data-revealed] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Texture — lignes de vitesse, signature de marque, très discrète */
+  .speedlines {
+    background-image: repeating-linear-gradient(
+      -64deg,
+      transparent,
+      transparent 22px,
+      rgba(205, 245, 100, 0.05) 22px,
+      rgba(205, 245, 100, 0.05) 23px
     );
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 3s linear infinite;
+  }
+
+  /* Grille technique de fond */
+  .techgrid {
+    background-image: linear-gradient(rgba(147, 163, 181, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(147, 163, 181, 0.055) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CURSEURS DE VALEUR
+   La zone de préhension fait 36 px de haut ; la piste visible reste fine.
+   ═══════════════════════════════════════════════════════════════════ */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 36px;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--ink-500);
+}
+input[type='range']::-moz-range-track {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--ink-500);
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  margin-top: -6px;
+  border-radius: 99px;
+  background: var(--volt);
+  border: 3px solid var(--ink-800);
+}
+input[type='range']::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border: 3px solid var(--ink-800);
+  border-radius: 99px;
+  background: var(--volt);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PRÉFÉRENCE DE MOUVEMENT RÉDUIT
+   Tout mouvement non essentiel est supprimé. Le contenu reste complet,
+   la scène 3D est rendue en état stable (voir ControlCore).
+   ═══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
