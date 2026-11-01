@@ -31,7 +31,7 @@ const modules = [
       'Exports PDF, Word, CSV, Excel',
       'Audit trail complet et immuable',
     ],
-    stat: { value: '−23%', label: 'de dépassements budgétaires en moyenne' },
+    stat: { value: 'FGF', label: 'Forecasting at Completion — détection précoce des dérives' },
     accentLeft: '#56a45b',
   },
   {
@@ -49,7 +49,7 @@ const modules = [
       'Alertes retard automatiques',
       "Rapports d'avancement en 1 clic",
     ],
-    stat: { value: '+40%', label: 'de jalons tenus dans les délais' },
+    stat: { value: '↑', label: 'Jalons suivis en temps réel — alertes retard automatiques' },
     accentLeft: '#f4a321',
   },
   {
@@ -243,7 +243,7 @@ export default function Home() {
               </div>
               <span className="inline-flex items-center gap-2 bg-cheetah-green/15 border border-cheetah-green/30 text-cheetah-green text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest self-center">
                 <span className="w-1.5 h-1.5 rounded-full bg-cheetah-green animate-glow-pulse" />
-                SaaS B2B · BTP & Infrastructure · 🇫🇷
+                SaaS B2B · Pilotage de Projets · 🇫🇷
               </span>
             </motion.div>
 
@@ -274,7 +274,7 @@ export default function Home() {
 
             <motion.p variants={fadeUp} custom={3}
               className="text-white/65 text-lg md:text-xl leading-relaxed max-w-xl mb-10 mx-auto lg:mx-0">
-              Cheetah transforme les fichiers, plannings et rapports dispersés en un système de pilotage projet fiable, clair et traçable — pour les PME/ETI en BTP, infrastructure et maîtrise d&apos;ouvrage.
+              Cheetah transforme les fichiers, plannings et rapports dispersés en un système de pilotage projet fiable, clair et traçable — pour toutes les équipes qui gèrent des projets complexes.
             </motion.p>
 
             <motion.div variants={fadeUp} custom={4} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -347,7 +347,7 @@ export default function Home() {
 
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <div className="text-white font-bold text-sm">Projet A47 — Viaduc Ouest</div>
+                    <div className="text-white font-bold text-sm">Projet INFRA-2026 — Phase 3</div>
                     <div className="text-white/35 text-xs font-mono mt-0.5">Cheetah Cost · Vue budget</div>
                   </div>
                   <span className="status-ok text-xs font-bold px-2.5 py-1 rounded-full">En cours</span>
@@ -356,10 +356,10 @@ export default function Home() {
                 {/* Budget bars */}
                 <div className="space-y-3.5 mb-5">
                   {[
-                    { label: 'Travaux structure', pct: 87, color: '#56a45b' },
-                    { label: 'Fondations spéciales', pct: 63, color: '#f4a321' },
-                    { label: 'Équipements MEP', pct: 91, color: '#56a45b' },
-                    { label: 'Ingénierie & MOE', pct: 44, color: '#3f8f48' },
+                    { label: 'Lot 1 — Études & Conception', pct: 87, color: '#56a45b' },
+                    { label: 'Lot 2 — Réalisation', pct: 63, color: '#f4a321' },
+                    { label: 'Lot 3 — Équipements', pct: 91, color: '#56a45b' },
+                    { label: 'Lot 4 — Coordination', pct: 44, color: '#3f8f48' },
                   ].map((b, i) => (
                     <div key={i}>
                       <div className="flex justify-between text-xs mb-1.5">
@@ -421,9 +421,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { val: 'FGF', sub: 'Méthode française standard', color: 'text-cheetah-green-deep' },
-              { val: '−23%', sub: 'de dépassements budgétaires', color: 'text-cheetah-green' },
-              { val: '300 M€', sub: 'de marché adressable en France', color: 'text-cheetah-orange' },
+              { val: 'FGF', sub: 'Méthode de forecasting native', color: 'text-cheetah-green-deep' },
+              { val: 'Cost', sub: 'Pilotage des coûts en temps réel', color: 'text-cheetah-green' },
+              { val: 'Time', sub: 'Planning & jalons synchronisés', color: 'text-cheetah-orange' },
               { val: '🇫🇷', sub: 'Hébergement & RGPD France', color: 'text-cheetah-green-deep' },
             ].map((s, i) => (
               <motion.div key={i}
@@ -452,7 +452,7 @@ export default function Home() {
             <motion.p variants={fadeUp} custom={0} className="label-tag mb-3">Le constat terrain</motion.p>
             <motion.h2 variants={fadeUp} custom={1}
               className="text-4xl md:text-5xl font-black text-cheetah-green-dark leading-tight mb-5">
-              Les projets BTP dérapent.<br />
+              Les projets complexes dérapent.<br />
               <span className="gradient-text">Cheetah stoppe la dérive.</span>
             </motion.h2>
             <motion.p variants={fadeUp} custom={2} className="text-gray-500 text-lg max-w-2xl mx-auto">
@@ -464,7 +464,7 @@ export default function Home() {
             {[
               {
                 icon: '📉', stat: '60%',
-                label: 'des projets BTP dépassent leur budget initial',
+                label: 'des projets dépassent leur budget initial',
                 detail: "Sans forecasting structuré, les dépassements ne sont détectés qu'une fois consommés.",
                 color: '#56a45b',
               },
@@ -886,7 +886,7 @@ export default function Home() {
             viewport={{ once: true, margin: '-80px' }} className="text-center mb-16">
             <motion.p variants={fadeUp} custom={0} className="label-tag mb-3">Plateforme</motion.p>
             <motion.h2 variants={fadeUp} custom={1} className="text-4xl md:text-5xl font-black text-cheetah-green-dark">
-              Conçu pour les exigences<br />du secteur industriel.
+              Conçu pour les exigences<br />des projets complexes.
             </motion.h2>
           </motion.div>
 
@@ -978,7 +978,7 @@ export default function Home() {
                 <span className="text-white font-bold">Conformité réglementaire</span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {['RGPD/CNIL', 'HDS France', 'TLS 1.3', 'AES-256', 'ISO 27001'].map((tag) => (
+                {['RGPD/CNIL', 'HDS France', 'TLS 1.3', 'AES-256', 'Données 🇫🇷'].map((tag) => (
                   <span key={tag} className="bg-cheetah-green/12 text-cheetah-green text-xs px-3 py-1.5 rounded-full font-semibold border border-cheetah-green/20">
                     {tag}
                   </span>
