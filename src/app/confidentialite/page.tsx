@@ -31,10 +31,13 @@ export default function Page() {
         <p>
           Ce site n’ayant pas de serveur applicatif, l’envoi du formulaire passe par{' '}
           <strong className="text-paper">Web3Forms</strong>, service tiers d’acheminement de
-          formulaires, qui reçoit votre demande et nous la relaie par e-mail. Ce prestataire agit
-          comme sous-traitant au sens du règlement général sur la protection des données.
+          formulaires exploité par <strong className="text-paper">Web3Creative</strong>, établi en
+          Inde. Ce prestataire reçoit votre demande et nous la relaie par e-mail. Il agit comme
+          sous-traitant au sens du règlement général sur la protection des données, dans le cadre
+          d’un accord de sous-traitance qui intègre les clauses contractuelles types de la décision
+          d’exécution (UE) 2021/914 pour les transferts hors Espace économique européen.
         </p>
-        <p>Les seules données transmises sont celles que vous saisissez :</p>
+        <p>Les données que vous saisissez et qui sont transmises sont :</p>
         <ul>
           <li>votre nom ;</li>
           <li>votre organisation ;</li>
@@ -43,9 +46,25 @@ export default function Page() {
           <li>le texte décrivant votre contexte.</li>
         </ul>
         <p>
-          Il n’y a ni champ caché collectant autre chose, ni traceur associé à l’envoi. Le
-          formulaire comporte un champ-piège invisible, destiné aux robots : il n’est jamais rempli
-          par une personne et son contenu n’est pas exploité.
+          S’y ajoutent les données techniques que produit tout envoi vers un serveur : adresse IP,
+          horodatage, page d’origine. Il n’y a en revanche aucun champ caché collectant autre chose.
+          Le formulaire comporte un champ-piège invisible, destiné aux robots : il n’est jamais
+          rempli par une personne et son contenu n’est pas transmis.
+        </p>
+        <p>
+          Pour filtrer les envois automatisés, le prestataire transmet votre adresse IP et votre
+          adresse e-mail à deux services antispam établis aux États-Unis :{' '}
+          <strong className="text-paper">CleanTalk</strong> et{' '}
+          <strong className="text-paper">Akismet</strong> (Automattic). Ce filtrage fait partie du
+          service : nous ne le paramétrons pas et ne pouvons pas le désactiver. Si vous préférez
+          l’éviter, le chemin par e-mail indiqué plus bas n’y est pas soumis.
+        </p>
+        <p>
+          L’acheminement repose sur Amazon Web Services (hébergement, base de données, stockage des
+          pièces jointes, envoi des notifications), Cloudflare (réseau de diffusion et pare-feu
+          applicatif) et Hetzner Online GmbH (Allemagne et Finlande). Les demandes sont conservées
+          au maximum trois ans par le prestataire, puis supprimées automatiquement. En cas de
+          violation de données, il s’engage à nous alerter sous soixante-douze heures.
         </p>
         <p>
           La base légale est l’intérêt légitime à répondre à une sollicitation commerciale que vous
@@ -60,14 +79,10 @@ export default function Page() {
           </a>
           . Le formulaire propose d’ailleurs ce chemin en cas d’échec d’envoi.
         </p>
-        <div className="mt-5">
-          <ANotifier>
-            Entité juridique exploitant Web3Forms, pays d’établissement et de traitement des
-            données, existence d’un accord de sous-traitance, et durée de conservation des demandes
-            de son côté comme du nôtre. Ces éléments doivent être relevés dans la politique de
-            confidentialité du prestataire et repris ici avant la mise en ligne publique.
-          </ANotifier>
-        </div>
+        <p className="text-sm text-steel-300">
+          Éléments relevés le 2 novembre 2026 dans la politique de confidentialité de Web3Forms et
+          dans son accord de sous-traitance (version 1.0 du 13 juillet 2026).
+        </p>
       </section>
 
       <section>
