@@ -37,8 +37,8 @@ Variables d'environnement de build :
 |---|---|---|
 | `NEXT_PUBLIC_BASE_PATH` | Préfixe de chemin (GitHub Pages) | vide |
 | `NEXT_PUBLIC_SITE_URL` | Origine publique, pour `sitemap.xml` et `robots.txt` | URL de prévisualisation |
-| `NEXT_PUBLIC_FORM_ENDPOINT` | URL de dépôt du formulaire de contact | vide → repli messagerie |
-| `NEXT_PUBLIC_FORM_ACCESS_KEY` | Clé publique du prestataire, si elle va dans le corps | vide |
+| `NEXT_PUBLIC_FORM_ACCESS_KEY` | Clé d'accès Web3Forms du formulaire de contact | vide → repli messagerie |
+| `NEXT_PUBLIC_FORM_ENDPOINT` | URL de dépôt, pour changer de prestataire | `https://api.web3forms.com/submit` |
 
 Voir `.env.example` pour le détail. Ces variables sont inlinées dans le
 JavaScript client : elles sont publiques par conception et ne doivent jamais
@@ -75,16 +75,22 @@ Lighthouse.
 ## Formulaire de contact
 
 Le site est un export statique : il n'a pas de serveur applicatif pour recevoir
-une soumission. L'envoi passe donc par un service tiers d'acheminement de
-formulaires, configuré par `NEXT_PUBLIC_FORM_ENDPOINT`.
+une soumission. L'envoi passe donc par **Web3Forms**. Une seule variable à renseigner :
+`NEXT_PUBLIC_FORM_ACCESS_KEY`.
 
 Deux modes, et l'interface annonce toujours celui qui s'applique :
 
-- **Endpoint configuré** — la demande part réellement en `POST`. En cas
-  d'échec réseau, la saisie est conservée et le visiteur se voit proposer de
-  repasser par sa messagerie ou de copier l'adresse. Il n'est jamais bloqué.
-- **Endpoint vide** — le bouton compose le message dans la messagerie du
-  visiteur, et le texte de l'encart le dit explicitement.
+- **Clé renseignée** — la demande part réellement en `POST` JSON vers
+  `api.web3forms.com/submit`, avec `access_key`, `subject`, `from_name` et
+  `replyto` conformément au contrat de l'éditeur. En cas de réponse non-2xx, le
+  champ `message` du corps est affiché au visiteur ; en cas d'échec réseau, un
+  motif explicite l'est à la place. Dans les deux cas la saisie est conservée et
+  deux chemins de secours sont proposés. Le visiteur n'est jamais bloqué.
+- **Clé vide** — le bouton compose le message dans la messagerie du visiteur, et
+  le texte de l'encart le dit explicitement.
+
+La clé est publique par conception : la documentation de Web3Forms précise
+qu'elle peut figurer dans une page. Le préfixe `NEXT_PUBLIC_` est donc correct.
 
 Un champ-piège invisible filtre les robots : hors du flux, hors du parcours
 clavier, `aria-hidden`. Une soumission qui le remplit reçoit une confirmation

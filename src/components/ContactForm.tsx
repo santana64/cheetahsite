@@ -4,31 +4,39 @@
  * Formulaire de prise de contact.
  *
  * Le site est publié en export statique : il n'y a aucun serveur applicatif
- * pour recevoir une soumission. La demande part donc vers un service tiers
- * d'acheminement de formulaires, configuré au build.
+ * pour recevoir une soumission. La demande part donc vers Web3Forms, service
+ * tiers d'acheminement de formulaires.
  *
- *   NEXT_PUBLIC_FORM_ENDPOINT     URL de dépôt complète
- *   NEXT_PUBLIC_FORM_ACCESS_KEY   clé publique, si le prestataire l'attend
- *                                 dans le corps de la requête
+ *   NEXT_PUBLIC_FORM_ACCESS_KEY   clé d'accès du formulaire (seule variable
+ *                                 nécessaire)
+ *   NEXT_PUBLIC_FORM_ENDPOINT     URL de dépôt, si l'on change de prestataire
  *
- * Ces deux valeurs sont publiques par conception — ce sont des identifiants de
- * formulaire, pas des secrets. Le préfixe NEXT_PUBLIC_ est donc correct : rien
- * de confidentiel n'est exposé. Un secret d'API n'aurait rien à faire ici et
- * imposerait un serveur.
+ * La clé d'accès est publique par conception : la documentation de Web3Forms
+ * précise qu'elle peut figurer dans une page. Le préfixe NEXT_PUBLIC_ est donc
+ * correct, rien de confidentiel n'est exposé. Un secret d'API n'aurait rien à
+ * faire ici et imposerait un serveur.
  *
- * Tant que l'URL n'est pas renseignée, le formulaire bascule sur la composition
- * d'un message dans la messagerie de l'utilisateur. Le comportement effectif est
- * annoncé dans l'interface, dans les deux cas : on ne laisse jamais croire à un
- * envoi qui n'a pas lieu.
+ * Contrat respecté ci-dessous, relevé dans la documentation de l'éditeur :
+ * POST JSON sur /submit, en-têtes Content-Type et Accept en application/json,
+ * champ access_key obligatoire, champs spéciaux subject, from_name et replyto,
+ * succès signalé par un code 200 et corps portant un champ message.
+ *
+ * Le piège à robots `botcheck` du prestataire est marqué déprécié dans sa
+ * documentation : on garde le nôtre, filtré côté client et jamais transmis.
+ *
+ * Tant que la clé n'est pas renseignée, le formulaire bascule sur la
+ * composition d'un message dans la messagerie de l'utilisateur. Le comportement
+ * effectif est annoncé dans l'interface, dans les deux cas : on ne laisse jamais
+ * croire à un envoi qui n'a pas lieu.
  */
 
 import Link from 'next/link';
 import { FormEvent, useRef, useState } from 'react';
 import { CONTACT } from '@/content/cheetah';
 
-const ENDPOINT = process.env.NEXT_PUBLIC_FORM_ENDPOINT ?? '';
 const ACCESS_KEY = process.env.NEXT_PUBLIC_FORM_ACCESS_KEY ?? '';
-const ENVOI_DIRECT = ENDPOINT.length > 0;
+const ENDPOINT = process.env.NEXT_PUBLIC_FORM_ENDPOINT ?? 'https://api.web3forms.com/submit';
+const ENVOI_DIRECT = ACCESS_KEY.length > 0;
 
 type Champs = {
   nom: string;
@@ -39,6 +47,9 @@ type Champs = {
 };
 
 type Etat = 'saisie' | 'envoi' | 'envoye' | 'echec';
+
+/** Message d'erreur renvoyé par le prestataire — donnée distante, affichée telle quelle. */
+const MAX_MESSAGE_DISTANT = 160;
 
 const ROLES = [
   'Direction de projet / PMO',
@@ -105,6 +116,7 @@ export function ContactForm() {
   const [v, setV] = useState<Champs>(VIDE);
   const [errors, setErrors] = useState<Partial<Record<keyof Champs, string>>>({});
   const [etat, setEtat] = useState<Etat>('saisie');
+  const [motif, setMotif] = useState('');
   const [copie, setCopie] = useState(false);
   const leurre = useRef<HTMLInputElement>(null);
   const statut = useRef<HTMLParagraphElement>(null);
@@ -157,14 +169,16 @@ export function ContactForm() {
     }
 
     setEtat('envoi');
+    setMotif('');
     try {
       const reponse = await fetch(ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-          ...(ACCESS_KEY ? { access_key: ACCESS_KEY } : {}),
+          access_key: ACCESS_KEY,
           subject: `Demande de démonstration — ${v.organisation}`,
           from_name: v.nom,
+          replyto: v.email,
           email: v.email,
           organisation: v.organisation,
           fonction: v.role || 'non précisée',
@@ -172,10 +186,25 @@ export function ContactForm() {
           message: corpsLisible(v),
         }),
       });
-      if (!reponse.ok) throw new Error(`HTTP ${reponse.status}`);
-      setEtat('envoye');
-      setV(VIDE);
+
+      if (!reponse.ok) {
+        // Le prestataire renvoie un corps JSON portant un champ `message`.
+        let detail = `Code ${reponse.status}`;
+        try {
+          const corps = await reponse.json();
+          if (typeof corps?.message === 'string' && corps.message.trim())
+            detail = corps.message.slice(0, MAX_MESSAGE_DISTANT);
+        } catch {
+          /* corps illisible : on garde le code HTTP */
+        }
+        setMotif(detail);
+        setEtat('echec');
+      } else {
+        setEtat('envoye');
+        setV(VIDE);
+      }
     } catch {
+      setMotif('La requête n’a pas abouti — connexion interrompue ou service injoignable.');
       setEtat('echec');
     }
     window.setTimeout(() => statut.current?.focus(), 80);
@@ -342,7 +371,8 @@ export function ContactForm() {
               role="alert"
               className="rounded-sm border-l-2 border-drift bg-drift/[0.07] p-4 text-xs leading-relaxed text-steel-200"
             >
-              <strong className="text-drift">L’envoi a échoué.</strong> Votre saisie est conservée
+              <strong className="text-drift">L’envoi a échoué.</strong>{' '}
+              {motif && <span className="text-steel-300">{motif} </span>}Votre saisie est conservée
               ci-dessus. Réessayez, ou envoyez-la directement par e-mail — le bouton ci-dessous
               recompose le même message dans votre messagerie.
               <span className="mt-3 flex flex-wrap gap-2">

@@ -29,10 +29,10 @@ export default function Page() {
       <section>
         <h2>Le formulaire de contact</h2>
         <p>
-          Ce site n’ayant pas de serveur applicatif, l’envoi du formulaire passe par un prestataire
-          d’acheminement de formulaires, qui reçoit votre demande et nous la relaie par e-mail. Ce
-          prestataire agit comme sous-traitant au sens du règlement général sur la protection des
-          données.
+          Ce site n’ayant pas de serveur applicatif, l’envoi du formulaire passe par{' '}
+          <strong className="text-paper">Web3Forms</strong>, service tiers d’acheminement de
+          formulaires, qui reçoit votre demande et nous la relaie par e-mail. Ce prestataire agit
+          comme sous-traitant au sens du règlement général sur la protection des données.
         </p>
         <p>Les seules données transmises sont celles que vous saisissez :</p>
         <ul>
@@ -62,10 +62,10 @@ export default function Page() {
         </p>
         <div className="mt-5">
           <ANotifier>
-            Identité et pays d’établissement du prestataire d’acheminement retenu, existence d’un
-            accord de sous-traitance, et durée de conservation des demandes de son côté comme du
-            nôtre. Ces éléments dépendent du prestataire effectivement configuré et doivent être
-            renseignés avant la mise en ligne publique.
+            Entité juridique exploitant Web3Forms, pays d’établissement et de traitement des
+            données, existence d’un accord de sous-traitance, et durée de conservation des demandes
+            de son côté comme du nôtre. Ces éléments doivent être relevés dans la politique de
+            confidentialité du prestataire et repris ici avant la mise en ligne publique.
           </ANotifier>
         </div>
       </section>
