@@ -19,10 +19,10 @@
 
   /* Texte */
   --paper: #eef2f6;
-  --steel-200: #c2ccd8;
-  --steel-300: #93a3b5;
-  --steel-400: #6b7a8d;
-  --steel-500: #55616f;
+  --steel-200: #c6d0da;
+  --steel-300: #9daaba;
+  --steel-400: #828fa1;
+  --steel-500: #707f92;
 
   /* Surfaces claires — actes produit */
   --bone: #eceae4;
@@ -324,8 +324,57 @@ body {
     white-space: nowrap;
   }
 
+  /* ── Entrée typographique : la ligne se découvre derrière un masque ─ */
+  .mask-lines > span {
+    display: block;
+    overflow: hidden;
+  }
+  .mask-lines > span > span {
+    display: block;
+  }
+  html.js-reveal .mask-lines > span > span {
+    transform: translateY(102%);
+    animation: lineRise 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .mask-lines > span:nth-child(1) > span {
+    animation-delay: 0.12s;
+  }
+  .mask-lines > span:nth-child(2) > span {
+    animation-delay: 0.22s;
+  }
+  .mask-lines > span:nth-child(3) > span {
+    animation-delay: 0.32s;
+  }
+  .mask-lines > span:nth-child(4) > span {
+    animation-delay: 0.42s;
+  }
+
+  /* Révélation masquée, déclenchée par ScrollReveal */
+  /* État acquis : posé par le script une fois l'effet censé terminé. Il ferme
+     définitivement le masquage, quelle que soit l'issue de la transition.
+     Sans lui, une timeline d'animation ralentie laisserait le contenu
+     invisible pour toujours. */
+  .reveal[data-settled],
+  .reveal-mask[data-settled] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    transition: none !important;
+  }
+
+  html.js-reveal .reveal-mask {
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: clip-path;
+  }
+  .reveal-mask[data-revealed] {
+    clip-path: inset(0 0 0 0);
+  }
+
   /* ── Révélation au scroll ──────────────────────────────────────── */
-  .reveal {
+  /* Masqué uniquement si le script de révélation est effectivement en place :
+     sans JavaScript, ou avant hydratation, tout le contenu reste lisible. */
+  html.js-reveal .reveal {
     opacity: 0;
     transform: translateY(18px);
     transition: opacity 0.7s var(--ease-cheetah), transform 0.7s var(--ease-cheetah);
@@ -411,9 +460,23 @@ input[type='range']::-moz-range-thumb {
    Tout mouvement non essentiel est supprimé. Le contenu reste complet,
    la scène 3D est rendue en état stable (voir ControlCore).
    ═══════════════════════════════════════════════════════════════════ */
+@keyframes lineRise {
+  to {
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .mask-lines > span > span {
+    transform: none;
+    animation: none;
+  }
+  .reveal-mask,
+  .reveal-mask[data-revealed] {
+    clip-path: none;
   }
   *,
   *::before,

@@ -1,6 +1,9 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { CtaBand, PageHero, ProofTag } from '@/components/ui';
+import CostGrid from '@/components/product/CostGrid';
+import ModuleCore from '@/components/product/ModuleCore';
+import PreuveCapture from '@/components/product/PreuveCapture';
+import TimeCard from '@/components/product/TimeCard';
 import { MODULES, type Module } from '@/content/cheetah';
 
 function DocSchema() {
@@ -80,6 +83,12 @@ function DocSchema() {
   );
 }
 
+const TITRES: Record<Module['slug'], string> = {
+  cost: 'L’écran de travail, colonne par colonne.',
+  time: 'La fiche projet telle qu’elle remonte au portefeuille.',
+  doc: 'Le principe, faute de capture publiée.',
+};
+
 export function ProductPage({ module: m }: { module: Module }) {
   const autres = MODULES.filter((x) => x.slug !== m.slug);
   const demontrees = m.capacites.filter((c) => c.preuve === 'demontre');
@@ -93,6 +102,7 @@ export function ProductPage({ module: m }: { module: Module }) {
         titre={m.promesse}
         chapeau={m.intro}
         accent={m.accentHex}
+        scene={<ModuleCore slug={m.slug} className="h-full w-full" />}
       >
         <div className="mt-9 flex flex-wrap gap-3">
           <Link href="/contact/" className="btn btn-primary">
@@ -104,36 +114,36 @@ export function ProductPage({ module: m }: { module: Module }) {
         </div>
       </PageHero>
 
-      {/* Preuve visuelle */}
+      {/* Preuve visuelle — reconstitution native, capture repliée */}
       <section className="border-b border-white/[0.07] bg-ink-850 py-20 md:py-28">
         <div className="shell">
-          <p className="eyebrow mb-8">Dans le produit</p>
-          {m.capture ? (
-            <figure className="reveal">
-              <div className="overflow-hidden rounded-sm border border-white/[0.09] bg-ink-800">
-                <div className="flex items-center gap-2 border-b border-white/[0.07] px-3 py-2">
-                  <span className="font-mono text-[0.625rem] uppercase tracking-[0.16em] text-steel-500">
-                    {m.nom}
-                  </span>
-                </div>
-                <div className="overflow-x-auto">
-                  <Image
-                    src={m.capture.src}
-                    alt={m.capture.alt}
-                    width={1920}
-                    height={m.slug === 'cost' ? 330 : 860}
-                    sizes="(max-width: 1280px) 100vw, 1180px"
-                    className="h-auto w-full min-w-[760px]"
-                    priority
-                  />
-                </div>
-              </div>
-              <figcaption className="mt-4 max-w-2xl text-xs leading-relaxed text-steel-500">
-                {m.capture.legende}
-              </figcaption>
-            </figure>
-          ) : (
-            <DocSchema />
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="eyebrow">Dans le produit</p>
+              <h2 className="display-md mt-5 max-w-xl text-paper">{TITRES[m.slug]}</h2>
+            </div>
+            {m.capture && (
+              <p className="max-w-sm text-xs leading-relaxed text-steel-500">
+                Valeurs relevées sur la capture d’écran du produit, recomposées dans la
+                typographie de ce site. Aucune donnée n’a été ajustée.
+              </p>
+            )}
+          </div>
+
+          <div className="reveal">
+            {m.slug === 'cost' && <CostGrid focus />}
+            {m.slug === 'time' && <TimeCard />}
+            {m.slug === 'doc' && <DocSchema />}
+          </div>
+
+          {m.capture && (
+            <PreuveCapture
+              src={m.capture.src}
+              alt={m.capture.alt}
+              width={1920}
+              height={m.slug === 'cost' ? 330 : 860}
+              legende={m.capture.legende}
+            />
           )}
         </div>
       </section>

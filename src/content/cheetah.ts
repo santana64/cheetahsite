@@ -446,3 +446,147 @@ export const NAV = [
   { label: 'Tarifs', href: '/tarifs/' },
   { label: 'Contact', href: '/contact/' },
 ] as const;
+
+/* ──────────────────────────────────────────────────────────────────────
+   DONNÉES PRODUIT RECONSTITUÉES
+
+   Les valeurs ci-dessous sont relevées une à une sur les captures d'écran
+   versionnées dans ce dépôt. Elles ne sont ni inventées, ni arrondies, ni
+   embellies : seul l'habillage change, pour que la grille s'affiche dans le
+   système graphique de ce site plutôt qu'en image.
+
+   Cohérence vérifiée sur les quatre relations du produit :
+     BàD = BI + Variation
+     Val. acquise = Avancement physique × BàD
+     CP  = Dépenses + RàF
+     E   = CP − BàD        ·        D = E − E préc.
+   ────────────────────────────────────────────────────────────────────── */
+
+export type LigneBudgetaire = {
+  code: string;
+  intitule: string;
+  bi: number;
+  variation: number | null;
+  bad: number;
+  depenses: number | null;
+  avancement: number | null;
+  valeurAcquise: number;
+  raf: number;
+  cp: number;
+  e: number;
+  eRatio: number;
+  ePrec: number;
+  d: number;
+};
+
+export const COST_ARRETE = {
+  tableau: 'B2P n°1-2',
+  projet: 'Test260512-1',
+  date: '01/09/2026',
+  unite: 'kEUR HT, aux conditions économiques de 06/2026, encouru',
+  bad: 800,
+  cp: 798,
+  ecart: -3,
+  source: 'Relevé sur la capture de Cheetah Cost versionnée dans ce dépôt.',
+} as const;
+
+export const COST_LIGNES: LigneBudgetaire[] = [
+  {
+    code: 'LB01',
+    intitule: 'MP',
+    bi: 30,
+    variation: null,
+    bad: 30,
+    depenses: 4,
+    avancement: 10,
+    valeurAcquise: 3,
+    raf: 26,
+    cp: 30,
+    e: 0,
+    eRatio: 0,
+    ePrec: 0,
+    d: 0,
+  },
+  {
+    code: 'LB02',
+    intitule: 'Définition',
+    bi: 260,
+    variation: null,
+    bad: 260,
+    depenses: 78.5,
+    avancement: 25,
+    valeurAcquise: 65,
+    raf: 210,
+    cp: 289,
+    e: 29,
+    eRatio: 11,
+    ePrec: 9,
+    d: 20,
+  },
+  {
+    code: 'LB03',
+    intitule: 'Appro',
+    bi: 160,
+    variation: 10,
+    bad: 170,
+    depenses: null,
+    avancement: null,
+    valeurAcquise: 0,
+    raf: 170,
+    cp: 170,
+    e: 0,
+    eRatio: 0,
+    ePrec: 0,
+    d: 0,
+  },
+  {
+    code: 'LB04',
+    intitule: 'Fab',
+    bi: 320,
+    variation: null,
+    bad: 320,
+    depenses: null,
+    avancement: null,
+    valeurAcquise: 0,
+    raf: 280,
+    cp: 280,
+    e: -40,
+    eRatio: -12,
+    ePrec: 0,
+    d: -40,
+  },
+  {
+    code: 'LB05',
+    intitule: 'Re7',
+    bi: 15,
+    variation: null,
+    bad: 15,
+    depenses: null,
+    avancement: null,
+    valeurAcquise: 0,
+    raf: 15,
+    cp: 15,
+    e: 0,
+    eRatio: 0,
+    ePrec: 0,
+    d: 0,
+  },
+];
+
+export const TIME_PROJET = {
+  nom: 'Northstar ERP Rollout',
+  statuts: ['Actif', 'À risque'],
+  resume:
+    'Mobilisation d’un déploiement ERP à l’échelle de l’entreprise : refonte des intégrations, répétition de bascule et période d’hypercare structurée.',
+  indicateurs: [
+    { label: 'Avancement du plan', valeur: '100', unite: '%', note: '1 tâche exécutable' },
+    { label: 'Fin prévisionnelle', valeur: '2026-04-06', unite: '', note: 'Cible 2026-05-21' },
+    { label: 'Chaîne critique', valeur: '0', unite: '', note: 'Tâches à marge nulle' },
+    { label: 'Écart de baseline', valeur: '0', unite: 'j', note: 'Plus grand écart de fin' },
+  ],
+  taches: [
+    { wbs: '1', nom: 'Mobilize and Diagnose', fin: '06 avr.', avancement: 100 },
+    { wbs: '1.1', nom: 'Kickoff complete', fin: '06 avr.', avancement: 100 },
+  ],
+  source: 'Relevé sur la capture de Cheetah Time versionnée dans ce dépôt.',
+} as const;

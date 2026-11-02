@@ -54,10 +54,13 @@ npm run verify
 npm run perf
 ```
 
-`verify` contrôle : erreurs de console, débordement horizontal, taille des
-cibles tactiles (WCAG 2.2 — 2.5.8), rendu en mouvement réduit, repli sans
-WebGL, parcours clavier avec indicateur de focus, et validation du formulaire
-de contact. Les captures sont écrites dans `./verif/`.
+`verify` contrôle, sur 14 routes et quatre largeurs : erreurs de console,
+débordement horizontal, **contenu réellement peint** (un bloc de texte présent
+dans la fenêtre ne doit jamais rester invisible), **contraste du texte**
+(WCAG 2.2 — 1.4.3 AA, avec composition de l'alpha sur le fond résolu), taille
+des cibles tactiles (2.5.8), rendu en mouvement réduit, repli sans WebGL,
+parcours clavier avec indicateur de focus, et validation du formulaire de
+contact. Les captures sont écrites dans `./verif/`.
 
 `perf` produit des mesures de laboratoire sur localhost avec rendu WebGL
 logiciel. Ce ne sont pas des données terrain et elles ne valent pas un score

@@ -224,13 +224,16 @@ export function ForecastSimulator() {
                 }}
               />
               <div
-                className="absolute inset-y-0 w-px transition-[left] duration-500 ease-cheetah"
-                style={{ left: `${pctBad}%`, background: '#eef2f6' }}
+                className="pointer-events-none absolute inset-y-0 w-px bg-paper transition-[left] duration-500 ease-cheetah"
+                style={{ left: `${pctBad}%` }}
+                aria-hidden="true"
+              />
+              <span
+                className="pointer-events-none absolute top-0.5 whitespace-nowrap bg-ink-700 px-1 font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-paper transition-[left] duration-500 ease-cheetah"
+                style={{ left: `calc(${pctBad}% + 5px)` }}
               >
-                <span className="absolute -top-0.5 left-1.5 whitespace-nowrap font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-paper">
-                  BàD
-                </span>
-              </div>
+                BàD
+              </span>
             </div>
             <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-steel-400">
               <span className="flex items-center gap-1.5">

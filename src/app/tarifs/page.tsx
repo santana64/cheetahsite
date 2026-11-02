@@ -148,7 +148,13 @@ export default function Page() {
         <div className="shell max-w-3xl">
           <p className="eyebrow">Précisions</p>
           <ul className="mt-6 space-y-4 text-sm leading-relaxed text-steel-300">
-            <li>Montants hors taxes, en euros.</li>
+            <li>
+              Montants hors taxes, en euros. Le cadre contractuel est décrit dans les{' '}
+              <Link href="/cgv/" className="text-volt underline-offset-4 hover:underline">
+                conditions générales
+              </Link>
+              .
+            </li>
             <li>
               Les niveaux de disponibilité et les délais de prise en charge sont définis dans le
               contrat de service, pas sur cette page.

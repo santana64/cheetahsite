@@ -23,7 +23,7 @@ export function SectionHead({
     >
       <p className={`eyebrow ${tone === 'light' ? '!text-ink-500' : ''}`}>{acte}</p>
       <h2
-        className={`display-lg mt-6 ${tone === 'light' ? 'text-ink-900' : 'text-paper'}`}
+        className={`display-lg reveal-mask mt-6 ${tone === 'light' ? 'text-ink-900' : 'text-paper'}`}
       >
         {titre}
       </h2>
@@ -132,6 +132,7 @@ export function PageHero({
   titre,
   chapeau,
   accent = '#cdf564',
+  scene,
   children,
 }: {
   fil: { label: string; href?: string }[];
@@ -139,11 +140,36 @@ export function PageHero({
   titre: ReactNode;
   chapeau: ReactNode;
   accent?: string;
+  /** Scène 3D posée derrière l'en-tête, quand la page en a une. */
+  scene?: ReactNode;
   children?: ReactNode;
 }) {
   return (
     <section className="relative overflow-hidden border-b border-white/[0.07] bg-ink-900 pb-16 pt-32 md:pb-24 md:pt-40">
       <div className="techgrid pointer-events-none absolute inset-0" aria-hidden="true" />
+      {scene && (
+        <>
+          <div className="absolute inset-x-0 bottom-0 top-20 md:left-auto md:right-0 md:w-[58%]">
+            {scene}
+          </div>
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(170deg, rgba(6,8,10,0.96) 0%, rgba(6,8,10,0.82) 46%, rgba(6,8,10,0.55) 100%)',
+            }}
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 hidden md:block"
+            style={{
+              background:
+                'linear-gradient(100deg, rgba(6,8,10,0.97) 0%, rgba(6,8,10,0.88) 38%, rgba(6,8,10,0.25) 66%, rgba(6,8,10,0.6) 100%)',
+            }}
+            aria-hidden="true"
+          />
+        </>
+      )}
       <div
         className="pointer-events-none absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full opacity-[0.55]"
         style={{ background: `radial-gradient(circle, ${accent}22, transparent 68%)` }}

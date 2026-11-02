@@ -26,44 +26,56 @@ const ControlCore = dynamic(() => import('../ControlCore').then((m) => m.Control
   loading: () => <CoreFallback className="h-full w-full" />,
 });
 
-const BEATS = [
+type Beat = { eyebrow: string; lignes: React.ReactNode[]; texte: string };
+
+const BEATS: Beat[] = [
   {
     eyebrow: 'Cheetah · Cost · Time · Doc',
-    titre: (
+    lignes: [
+      <>La dérive se voit</>,
       <>
-        La dérive se voit
-        <br />
         <span className="text-volt">avant</span> de se payer.
-      </>
-    ),
+      </>,
+    ],
     texte:
       'Cheetah tient la chaîne complète du contrôle de projet : budget à date, avancement physique, valeur acquise, reste à faire, coût prévisionnel, écart. Ligne budgétaire par ligne budgétaire, arrêté après arrêté.',
   },
   {
     eyebrow: 'Acte 02 — Le désordre',
-    titre: (
+    lignes: [
+      <>Les dépenses sont à jour.</>,
       <>
-        Les dépenses sont à jour.
-        <br />
         <span className="text-amber">L’avancement ne l’est pas.</span>
-      </>
-    ),
+      </>,
+    ],
     texte:
       'Un projet qui consomme son budget au rythme prévu peut être très en retard sur ce qu’il produit. Sans mesure d’avancement physique, l’écart reste invisible jusqu’au moment où il n’est plus rattrapable.',
   },
   {
     eyebrow: 'Acte 03 — La convergence',
-    titre: (
+    lignes: [
+      <>Une référence. Une mesure.</>,
       <>
-        Une référence. Une mesure.
-        <br />
         <span className="text-volt">Une projection.</span>
-      </>
-    ),
+      </>,
+    ],
     texte:
       'Chaque ligne budgétaire porte sa cible, son avancement réel et sa prévision de coût final. Le faisceau se referme sur le budget à date — et l’écart devient une décision, pas une surprise de fin de chantier.',
   },
 ];
+
+/** Titre découpé en lignes, chacune découverte derrière son masque. */
+function TitreMasque({ lignes, className }: { lignes: React.ReactNode[]; className: string }) {
+  return (
+    <span className={`mask-lines ${className}`}>
+      {lignes.map((l, i) => (
+        <span key={i}>
+          <span>{l}</span>
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export function Stage() {
   const stage = useRef<HTMLDivElement>(null);
@@ -116,7 +128,9 @@ export function Stage() {
       <section className="relative overflow-hidden border-b border-white/[0.07] bg-ink-900">
         <div className="shell relative pb-16 pt-32 md:pt-40">
           <p className="eyebrow">{BEATS[0].eyebrow}</p>
-          <h1 className="display-xl mt-6 max-w-[20ch]">{BEATS[0].titre}</h1>
+          <h1 className="display-xl mt-6 max-w-[20ch]">
+            <TitreMasque lignes={BEATS[0].lignes} className="" />
+          </h1>
           <p className="lede mt-6">{BEATS[0].texte}</p>
           <Actions />
         </div>
@@ -137,7 +151,9 @@ export function Stage() {
           {BEATS.slice(1).map((b, i) => (
             <div key={i} className="max-w-3xl">
               <p className="eyebrow">{b.eyebrow}</p>
-              <h2 className="display-lg mt-6">{b.titre}</h2>
+              <h2 className="display-lg mt-6">
+                <TitreMasque lignes={b.lignes} className="" />
+              </h2>
               <p className="lede mt-6">{b.texte}</p>
             </div>
           ))}
@@ -186,14 +202,19 @@ export function Stage() {
                   beatRefs.current[i] = el;
                 }}
                 className="absolute inset-0 flex flex-col justify-center"
+                /* Temps narratifs : leur opacité est pilotée par la
+                   progression du défilement, pas par un effet d'entrée. */
+                data-sequence=""
                 style={{ opacity: i === 0 ? 1 : 0, willChange: 'opacity, transform' }}
               >
                 <p className="eyebrow">{b.eyebrow}</p>
                 {i === 0 ? (
-                  <h1 className="display-xl mt-6">{b.titre}</h1>
+                  <h1 className="display-xl mt-6">
+                    <TitreMasque lignes={b.lignes} className="" />
+                  </h1>
                 ) : (
                   <p className="display-lg mt-6" role="heading" aria-level={2}>
-                    {b.titre}
+                    <TitreMasque lignes={b.lignes} className="" />
                   </p>
                 )}
                 <p className="lede mt-6">{b.texte}</p>

@@ -26,6 +26,7 @@ const COLONNES: { titre: string; liens: { label: string; href: string }[] }[] = 
     liens: [
       { label: 'Contact', href: '/contact/' },
       { label: 'Mentions légales', href: '/mentions-legales/' },
+      { label: 'Conditions générales', href: '/cgv/' },
       { label: 'Confidentialité', href: '/confidentialite/' },
     ],
   },

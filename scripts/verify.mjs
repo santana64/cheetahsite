@@ -30,6 +30,7 @@ const ROUTES = [
   '/roadmap/',
   '/contact/',
   '/mentions-legales/',
+  '/cgv/',
   '/confidentialite/',
   '/404.html',
 ];
@@ -57,7 +58,7 @@ const nav = async (page, route) => {
   page.on('console', (m) => m.type() === 'error' && errs.push(m.text()));
   page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
   await page.goto(ORIGINE + route, { waitUntil: 'load', timeout: 30000 });
-  await page.waitForTimeout(1600);
+  await page.waitForTimeout(2200);
   return errs;
 };
 
@@ -98,7 +99,7 @@ for (const v of LARGEURS) {
             const r = el.getBoundingClientRect();
             const s = getComputedStyle(el);
             if (r.width === 0 || r.height === 0 || s.visibility === 'hidden') return false;
-            const enLigne = el.tagName === 'A' && el.closest('p, dd, li > p, figcaption');
+            const enLigne = el.tagName === 'A' && el.closest('p, dd, li, figcaption, summary');
             if (enLigne) return false;
             return r.height < 24 || r.width < 24;
           })
@@ -107,6 +108,113 @@ for (const v of LARGEURS) {
       });
       if (petites.length) note(`375 ${route} : cibles tactiles < 24px — ${petites.join(' | ')}`);
     }
+    // Contenu invisible — le défaut que cette suite avait laissé passer :
+    // une page peut compiler, ne produire aucune erreur et n'afficher aucune
+    // donnée si un effet d'entrée reste bloqué. On vérifie donc que tout bloc
+    // porteur de texte est réellement peint.
+    const fantomes = await page.evaluate(() => {
+      const sortie = [];
+      for (const el of document.querySelectorAll('tr, li, p, h1, h2, h3, h4, dd, figcaption')) {
+        const texte = (el.textContent || '').trim();
+        if (texte.length < 12) continue;
+        // Les temps de la séquence narrative se relaient au défilement :
+        // leur opacité est un contenu piloté, pas un contenu masqué.
+        if (el.closest('[data-sequence]')) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) continue;
+        // Seul ce qui est dans la fenêtre doit être peint : un bloc encore
+        // sous le pli attend légitimement sa révélation au défilement.
+        if (r.top > window.innerHeight * 0.8 || r.bottom < 0) continue;
+        // Opacité effective, en remontant la chaîne des ancêtres.
+        let o = 1;
+        let n = el;
+        while (n && n !== document.documentElement) {
+          o *= parseFloat(getComputedStyle(n).opacity);
+          n = n.parentElement;
+        }
+        const s = getComputedStyle(el);
+        const clip = s.clipPath && s.clipPath !== 'none' ? s.clipPath : '';
+        const masqueTotal = /inset\((?:100%|\s*0[a-z%]*\s+0[a-z%]*\s+100%)/.test(clip);
+        if (o < 0.08 || masqueTotal) {
+          sortie.push(`${el.tagName.toLowerCase()} opacité ${o.toFixed(2)} — « ${texte.slice(0, 44)} »`);
+        }
+      }
+      return sortie.slice(0, 5);
+    });
+    fantomes.forEach((f) => note(`contenu invisible ${v.nom} ${route} : ${f}`));
+
+    // Contraste du texte — WCAG 2.2, critère 1.4.3 (AA).
+    // Le fond effectif est résolu en remontant jusqu'au premier ancêtre opaque.
+    // Les textes posés sur un dégradé ou sur la scène 3D sont écartés : leur
+    // fond réel n'est pas déterminable par cette méthode.
+    if (v.w === 1440) {
+      const faibles = await page.evaluate(() => {
+        const lum = (c) => {
+          const [r, g, b] = c.map((v) => {
+            const s = v / 255;
+            return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        };
+        const parse = (s) => {
+          const m = s.match(/rgba?\(([^)]+)\)/);
+          if (!m) return null;
+          const p = m[1].split(',').map((x) => parseFloat(x));
+          return { rgb: p.slice(0, 3), a: p.length > 3 ? p[3] : 1 };
+        };
+        const fondOpaque = (el) => {
+          let n = el;
+          while (n && n !== document.documentElement) {
+            const s = getComputedStyle(n);
+            if (s.backgroundImage && s.backgroundImage !== 'none') return null;
+            const bg = parse(s.backgroundColor);
+            if (bg && bg.a >= 0.99) return bg.rgb;
+            if (bg && bg.a > 0) return null;
+            n = n.parentElement;
+          }
+          return parse(getComputedStyle(document.body).backgroundColor)?.rgb ?? null;
+        };
+
+        const sortie = [];
+        const vus = new Set();
+        for (const el of document.querySelectorAll('p, span, a, li, dt, dd, h1, h2, h3, h4, td, th, figcaption, label, button, summary')) {
+          const texte = [...el.childNodes]
+            .filter((n) => n.nodeType === 3)
+            .map((n) => n.textContent.trim())
+            .join(' ')
+            .trim();
+          if (texte.length < 3) continue;
+          const r = el.getBoundingClientRect();
+          if (r.width === 0 || r.height === 0) continue;
+          const s = getComputedStyle(el);
+          if (s.visibility === 'hidden' || parseFloat(s.opacity) < 0.95) continue;
+          const fg = parse(s.color);
+          const bg = fondOpaque(el);
+          if (!fg || !bg) continue;
+          // Texte semi-transparent : on le compose sur le fond résolu plutôt
+          // que de l'écarter — c'est le cas de toutes les sections claires.
+          const avant = fg.a >= 0.99 ? fg.rgb : fg.rgb.map((c, i) => c * fg.a + bg[i] * (1 - fg.a));
+          const l1 = lum(avant);
+          const l2 = lum(bg);
+          const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+          const px = parseFloat(s.fontSize);
+          const gras = parseInt(s.fontWeight, 10) >= 700;
+          const grand = px >= 24 || (gras && px >= 18.66);
+          const seuil = grand ? 3 : 4.5;
+          if (ratio + 0.005 < seuil) {
+            const cle = s.color + '|' + ratio.toFixed(2);
+            if (vus.has(cle)) continue;
+            vus.add(cle);
+            sortie.push(
+              `${ratio.toFixed(2)}:1 (exigé ${seuil}) ${s.color} ${px}px — « ${texte.slice(0, 38)} »`
+            );
+          }
+        }
+        return sortie.slice(0, 8);
+      });
+      faibles.forEach((f) => note(`contraste ${route} : ${f}`));
+    }
+
     console.log(`  ok ${route}`);
   }
   await ctx.close();

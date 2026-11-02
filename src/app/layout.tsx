@@ -66,6 +66,22 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr" className={`${display.variable} ${ui.variable} ${mono.variable}`}>
+      <head>
+        {/*
+          Les effets d'entrée ne masquent le contenu que si trois conditions
+          sont réunies : le script s'exécute, l'onglet est au premier plan, et
+          l'utilisateur n'a pas demandé moins de mouvement. Un onglet ouvert en
+          arrière-plan ou un outil de capture ralentit la timeline d'animation :
+          sans ce garde-fou, une transition bloquée laisserait le contenu
+          invisible pour toujours.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(document.visibilityState==='visible'&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('js-reveal')}}catch(e){}",
+          }}
+        />
+      </head>
       <body className="font-sans antialiased">
         <a href="#contenu" className="skip-link">
           Aller au contenu

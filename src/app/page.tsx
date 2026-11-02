@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import ForecastSimulator from '@/components/ForecastSimulator';
+import CostGrid from '@/components/product/CostGrid';
 import Stage from '@/components/home/Stage';
 import { CtaBand, ProofTag, SectionHead } from '@/components/ui';
 import { CIBLES, FRICTIONS, METHODE_ETAPES, MODULES, PLATEFORME } from '@/content/cheetah';
@@ -80,133 +80,116 @@ export default function Accueil() {
         </div>
       </section>
 
-      {/* ═══ Le produit, enfin visible ══════════════════════════════ */}
-      <section id="produit" className="relative scroll-mt-24 bg-bone py-24 text-ink-800 md:py-36">
-        <div className="shell">
+      {/* ═══ Le produit, enfin visible ═══════════════════════════════ */}
+      <section
+        id="produit"
+        className="relative scroll-mt-24 border-b border-white/[0.07] bg-ink-900 py-24 md:py-36"
+      >
+        <div className="techgrid pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
+        <div className="shell relative">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div className="lg:col-span-6">
               <SectionHead
-                tone="light"
                 acte="Acte 05 — Le logiciel"
                 titre={
                   <>
-                    Voilà l’écran.
+                    Voilà l’écran de travail.
                     <br />
                     Pas une illustration.
                   </>
                 }
-                chapeau="Le contrôle de coûts de Cheetah tient dans une grille. Chaque ligne budgétaire porte sa référence, sa mesure et sa projection. Rien n’est caché derrière une animation."
+                chapeau="Douze colonnes, cinq opérations, une date d’arrêté. Chaque ligne budgétaire porte sa référence, sa mesure et sa projection."
               />
-              <div className="reveal mt-9 flex flex-wrap gap-3">
-                <Link href="/cheetah-cost/" className="btn btn-dark">
+            </div>
+            <div className="lg:col-span-6 lg:pt-20">
+              <p className="reveal body-copy max-w-prose">
+                Ce tableau n’est pas une maquette : colonnes, groupes d’en-tête et valeurs sont
+                relevés sur l’écran réel du module Cost. Nous l’avons simplement composé dans la
+                typographie de ce site, pour qu’il reste lisible au lieu d’être une image.
+              </p>
+              <p className="reveal body-copy mt-4 max-w-prose">
+                Rien n’est allégé pour la photo. C’est dense parce que le métier l’est.
+              </p>
+              <div className="reveal mt-8 flex flex-wrap gap-3">
+                <Link href="/cheetah-cost/" className="btn btn-primary">
                   Explorer Cheetah Cost
                 </Link>
-                <Link href="/methodologie/" className="btn !border !border-ink-800/25 !text-ink-800 hover:!bg-ink-800/5">
+                <Link href="/methodologie/" className="btn btn-ghost">
                   Comprendre la méthode
                 </Link>
               </div>
             </div>
+          </div>
 
-            <div className="lg:col-span-6">
-              <p className="reveal text-sm leading-relaxed text-ink-800/70">
-                Douze colonnes, cinq opérations, une date d’arrêté. La grille ci-dessous est
-                l’écran de travail réel du module Cost : chaque ligne budgétaire y porte son
-                budget initial, ses variations, ce qui a été dépensé, ce qui a été réellement
-                produit, et ce que la ligne coûtera à la fin.
+          <div className="reveal mt-16">
+            <CostGrid />
+          </div>
+
+          {/* Lecture commentée de deux lignes réelles */}
+          <div className="mt-16 grid gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-4">
+              <p className="eyebrow">Lire une dérive</p>
+              <h3 className="display-md mt-5 text-paper">
+                Deux lignes, deux situations opposées.
+              </h3>
+              <p className="body-copy mt-4 max-w-prose">
+                Le niveau de l’écart ne dit presque rien. C’est sa variation d’un arrêté à l’autre
+                — la colonne D — qui déclenche l’action.
               </p>
-              <p className="reveal mt-4 text-sm leading-relaxed text-ink-800/70">
-                Rien n’est simplifié pour la photo. C’est dense parce que le métier l’est.
-              </p>
             </div>
-          </div>
-        </div>
-
-        {/* Capture pleine largeur — l'interface doit être lisible */}
-        <figure className="reveal mt-14">
-          <div className="border-y border-ink-800/15 bg-white">
-            <div className="flex items-center justify-between gap-3 border-b border-ink-800/10 bg-bone-dark/40 px-4 py-2">
-              <span className="font-mono text-[0.625rem] uppercase tracking-[0.16em] text-ink-800/45">
-                Cheetah Cost · tableau de lignes budgétaires
-              </span>
-              <span className="font-mono text-[0.625rem] uppercase tracking-[0.16em] text-ink-800/35">
-                Capture réelle
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <Image
-                src={cost.capture!.src}
-                alt={cost.capture!.alt}
-                width={1920}
-                height={330}
-                sizes="100vw"
-                className="h-auto w-full min-w-[1100px]"
-              />
-            </div>
-          </div>
-          <figcaption className="shell mt-4 text-xs leading-relaxed text-ink-800/60">
-            {cost.capture!.legende} Sur petit écran, la grille se parcourt horizontalement — comme
-            dans le produit.
-          </figcaption>
-        </figure>
-
-        {/* Zoom contextualisé sur le bloc de prévision */}
-        <div className="shell mt-20 grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-7">
-            <figure className="reveal">
-              <Image
-                src="/zoom-ecart.webp"
-                alt="Détail du bloc Prévision : colonnes Reste à faire, Coût prévisionnel, Écart, Écart rapporté au budget à date, Écart précédent et Dérive, pour cinq lignes budgétaires."
-                width={1290}
-                height={570}
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="h-auto w-full rounded-sm border border-ink-800/15"
-              />
-              <figcaption className="mt-3 text-xs text-ink-800/55">
-                Agrandissement du bloc « Prévision » de la capture ci-dessus.
-              </figcaption>
-            </figure>
-          </div>
-          <div className="lg:col-span-5">
-            <p className="eyebrow !text-ink-500">Lire une dérive</p>
-            <h3 className="display-sm mt-5 text-ink-900">
-              Deux lignes, deux situations opposées.
-            </h3>
-            <div className="mt-7 space-y-6">
-              <div className="border-t border-ink-800/15 pt-5">
-                <p className="num text-xs font-semibold text-ink-900">
-                  Ligne 2 — E 29 · E/BàD 11 % · E préc. 9 · D +20
+            <div className="grid gap-px lg:col-span-8 lg:grid-cols-2">
+              <div className="reveal border-t border-drift/40 py-7 lg:pr-10">
+                <p className="num text-xs font-semibold text-drift">
+                  LB02 · E 29 · E/BàD 11 % · E préc. 9 · D +20
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-ink-800/70">
-                  Le coût prévisionnel dépasse le budget à date de 11 %. Mais le signal réel est
-                  ailleurs : l’écart était de 9 à l’arrêté précédent, il est de 29 aujourd’hui. La
-                  ligne s’est dégradée de 20 en une période. C’est la dérive, et c’est elle qu’on
-                  traite.
+                <h4 className="mt-3 text-lg font-semibold tracking-tight text-paper">
+                  La ligne qui se dégrade
+                </h4>
+                <p className="body-copy mt-2 max-w-prose text-sm">
+                  Le coût prévisionnel dépasse le budget à date de 11 %. Mais l’information utile
+                  est la tendance : l’écart valait 9 à l’arrêté précédent, il vaut 29 aujourd’hui.
+                  Vingt points de dégradation en une période, sur une ligne avancée à 25 %. C’est
+                  là qu’on intervient, pas à la livraison.
                 </p>
               </div>
-              <div className="border-t border-ink-800/15 pt-5">
-                <p className="num text-xs font-semibold text-ink-900">
-                  Ligne 4 — E −40 · E/BàD −12 % · D −40
+              <div className="reveal border-t border-volt/40 py-7 lg:pl-10" data-reveal-delay="120">
+                <p className="num text-xs font-semibold text-volt">
+                  LB04 · E −40 · E/BàD −12 % · D −40
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-ink-800/70">
-                  Écart négatif : la ligne coûtera moins que son budget à date. Apparue d’un coup
-                  depuis le dernier arrêté, elle mérite autant d’attention — une économie
-                  soudaine de 12 % signale souvent un périmètre qui a bougé.
+                <h4 className="mt-3 text-lg font-semibold tracking-tight text-paper">
+                  L’économie qui pose question
+                </h4>
+                <p className="body-copy mt-2 max-w-prose text-sm">
+                  Écart négatif : la ligne coûtera quarante de moins que son budget à date. Elle
+                  mérite pourtant la même attention — apparue d’un seul coup depuis le dernier
+                  arrêté, sans dépense ni avancement enregistrés, une économie de 12 % signale
+                  plus souvent un périmètre qui a bougé qu’une bonne surprise.
                 </p>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Lecture de la grille */}
-        <div className="shell mt-16">
-          <dl className="grid gap-x-12 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
-            {cost.lexique!.map((l) => (
-              <div key={l.terme} className="reveal flex gap-4 border-t border-ink-800/12 pt-4">
-                <dt className="num shrink-0 text-xs font-semibold text-ink-900">{l.terme}</dt>
-                <dd className="text-xs leading-relaxed text-ink-800/70">{l.sens}</dd>
-              </div>
-            ))}
-          </dl>
+      {/* ═══ Lire la grille ═══════════════════════════════════════════ */}
+      <section className="border-b border-white/[0.07] bg-bone py-20 text-ink-800 md:py-28">
+        <div className="shell">
+          <div className="grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <p className="eyebrow !text-ink-500">Lire la grille</p>
+              <h2 className="display-md mt-6 text-ink-900">
+                Six colonnes suffisent à savoir si un projet tient.
+              </h2>
+            </div>
+            <dl className="grid gap-x-12 gap-y-5 lg:col-span-8 lg:grid-cols-2">
+              {cost.lexique!.map((l) => (
+                <div key={l.terme} className="reveal flex gap-4 border-t border-ink-800/12 pt-4">
+                  <dt className="num w-24 shrink-0 text-xs font-semibold text-ink-900">{l.terme}</dt>
+                  <dd className="text-xs leading-relaxed text-ink-800/70">{l.sens}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
       </section>
 
@@ -290,7 +273,7 @@ export default function Accueil() {
                   className="reveal flex gap-6 border-t border-white/[0.08] py-7"
                   data-reveal-delay={i * 70}
                 >
-                  <span className="num pt-1 text-xs text-drift/70">{f.code}</span>
+                  <span className="num pt-1 text-xs text-drift">{f.code}</span>
                   <div>
                     <h3 className="text-lg font-semibold tracking-tight text-paper">{f.titre}</h3>
                     <p className="body-copy mt-2 max-w-prose">{f.texte}</p>

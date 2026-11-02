@@ -101,8 +101,10 @@ mécanismes, chacun choisi pour son coût :
 
 1. **Transitions CSS** pour les états d'interface (`--ease-cheetah`,
    `cubic-bezier(0.22, 1, 0.36, 1)`).
-2. **Un observateur de défilement unique** (`ScrollReveal`) pour la révélation
-   progressive, via l'attribut `data-revealed`.
+2. **Un `IntersectionObserver` unique** (`ScrollReveal`) pour la révélation
+   progressive, via l'attribut `data-revealed`. L'état est porté par un
+   attribut et non par une classe : React réécrit `className` à chaque rendu
+   et effacerait une classe posée hors de son contrôle.
 3. **Les uniformes du shader** pour la scène 3D, pilotés par
    `useScrollProgress` et amortis image par image dans `useFrame`.
 
@@ -110,6 +112,33 @@ GSAP, Framer Motion et Lottie ont été retirés du projet : aucun des besoins
 réels ne les justifiait, et ils pesaient sur le chargement initial. Le choix est
 réversible, mais il doit être argumenté par un besoin que CSS et les shaders ne
 couvrent pas.
+
+### La règle qui prime sur l'effet
+
+**Aucun contenu ne doit dépendre de l'achèvement d'une animation.** Ce n'est
+pas une précaution théorique : une timeline d'animation ralentie — onglet en
+arrière-plan, outil de capture, appareil throttlé — laisse une transition
+bloquée à son état de départ. Un bloc parti d'`opacity: 0` reste alors
+invisible pour toujours, et la page compile, ne lève aucune erreur et n'affiche
+rien.
+
+Trois dispositifs appliquent cette règle :
+
+1. **Le masquage est conditionnel.** La classe `js-reveal` n'est posée sur
+   `<html>` que si le script s'exécute, si l'onglet est au premier plan et si
+   l'utilisateur n'a pas demandé moins de mouvement. Sans elle, aucune règle de
+   masquage ne s'applique.
+2. **Le masquage a une échéance.** Une seconde après la révélation, le script
+   pose `data-settled`, qui verrouille l'état visible quelle que soit l'issue
+   de la transition.
+3. **Les données ne sont jamais masquées.** Dans la grille Cost, seules les
+   barres de magnitude s'animent. Une barre figée à zéro ne cache rien ; une
+   ligne figée à opacité zéro cache tout.
+
+Le script de vérification contrôle cette règle : tout bloc porteur de texte
+présent dans la fenêtre doit être réellement peint. Les temps de la séquence
+narrative, dont l'opacité est un contenu piloté par le défilement et non un
+effet d'entrée, sont marqués `data-sequence` et explicitement exclus.
 
 ### Garde-fous
 
@@ -143,7 +172,34 @@ couvrent pas.
 
 ---
 
-## 6. Règles de fiabilité du contenu
+## 6. Présentation du produit
+
+Les captures brutes du logiciel ne sont pas affichées dans le flux : leur
+palette orange et verte entre en conflit frontal avec la direction artistique.
+
+La grille Cheetah Cost et la fiche projet Cheetah Time sont donc **reconstituées
+nativement** — mêmes colonnes, mêmes groupes d'en-tête, mêmes valeurs, relevées
+une à une sur les captures et conservées dans `src/content/cheetah.ts`. Seul
+l'habillage appartient à ce site.
+
+La cohérence des valeurs est vérifiable sur les quatre relations du produit :
+
+```
+BàD = BI + Variation
+Val. acquise = Avancement physique × BàD
+CP  = Dépenses + RàF
+E   = CP − BàD          D = E − E préc.
+```
+
+La capture d'origine reste accessible derrière un dépliant fermé par défaut sur
+chaque page produit. Sans elle, la mention « démontré par capture » ne serait
+plus vérifiable par le visiteur : on ne retire pas la preuve, on retire son
+encombrement.
+
+**Interdit** : reconstituer un écran dont aucune capture n'existe. Cheetah Doc
+n'a donc pas de grille mais un schéma de principe, étiqueté comme tel.
+
+## 7. Règles de fiabilité du contenu
 
 Ces règles sont structurelles, pas éditoriales : elles sont encodées dans
 `src/content/cheetah.ts` et rendues par le composant `ProofTag`.
@@ -164,7 +220,7 @@ prévisionnel) portent une étiquette visible et une phrase explicite.
 
 ---
 
-## 7. Structure du code
+## 8. Structure du code
 
 ```
 src/

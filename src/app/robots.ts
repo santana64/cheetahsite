@@ -9,7 +9,7 @@ export const dynamic = 'force-static';
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: '*', allow: '/', disallow: ['/mentions-legales/', '/confidentialite/'] }],
+    rules: [{ userAgent: '*', allow: '/', disallow: ['/mentions-legales/', '/confidentialite/', '/cgv/'] }],
     sitemap: ORIGINE + '/sitemap.xml',
   };
 }

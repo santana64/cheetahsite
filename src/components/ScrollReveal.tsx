@@ -3,9 +3,16 @@
 /**
  * Révélation progressive au défilement.
  *
- * Un seul IntersectionObserver pour toute la page, réappliqué à chaque
- * changement de route. En mouvement réduit, tout est révélé immédiatement —
- * aucun contenu ne dépend d'une animation pour être lisible.
+ * Deux effets partagent le même déclencheur : `.reveal` (fondu et montée) et
+ * `.reveal-mask` (la ligne se découvre derrière un masque, réservé aux titres).
+ *
+ * Un seul IntersectionObserver pour toute la page, réarmé à chaque changement
+ * de route. L'état est porté par l'attribut `data-revealed` et non par une
+ * classe : React réécrit `className` à chaque rendu et effacerait une classe
+ * posée hors de son contrôle — c'était la cause du premier bug de révélation.
+ *
+ * En mouvement réduit, tout est révélé immédiatement : aucun contenu ne dépend
+ * d'une animation pour être lisible.
  */
 
 import { usePathname } from 'next/navigation';
@@ -15,68 +22,68 @@ export function ScrollReveal() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // L'état de révélation est porté par un attribut de données et non par
-    // une classe : React réécrit `className` à chaque rendu et effacerait
-    // une classe ajoutée hors de son contrôle.
-    const montrer = (el: HTMLElement) => el.setAttribute('data-revealed', '');
+    const timers: number[] = [];
 
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>('.reveal'));
+    /**
+     * Révèle l'élément, puis verrouille son état visible après l'échéance de
+     * l'effet. L'animation est un agrément ; la lisibilité, elle, ne dépend
+     * d'aucune transition menée à son terme.
+     */
+    const montrer = (el: HTMLElement) => {
+      el.setAttribute('data-revealed', '');
+      timers.push(window.setTimeout(() => el.setAttribute('data-settled', ''), 1000));
+    };
+
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>('.reveal, .reveal-mask'));
     if (nodes.length === 0) return;
 
     const reduced =
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (reduced) {
+    if (reduced || typeof IntersectionObserver === 'undefined') {
       nodes.forEach(montrer);
       return;
     }
 
-    let pending = nodes;
-    let frame = 0;
-    const timers: number[] = [];
-
-    const check = () => {
-      frame = 0;
-      const limit = window.innerHeight * 0.92;
-      const reste: HTMLElement[] = [];
-      for (const el of pending) {
-        const rect = el.getBoundingClientRect();
-        // Visible dès que le haut de l'élément entre dans la fenêtre, ou
-        // qu'une partie de l'élément est déjà à l'écran.
-        if (rect.top < limit && rect.bottom > 0) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          io.unobserve(el);
           const delay = Number(el.dataset.revealDelay ?? 0);
           if (delay > 0) timers.push(window.setTimeout(() => montrer(el), delay));
           else montrer(el);
-        } else if (rect.top >= limit) {
-          reste.push(el);
-        } else {
-          // Déjà dépassé vers le haut : révélé sans animation d'entrée.
-          montrer(el);
         }
-      }
-      pending = reste;
-      if (pending.length === 0) detach();
-    };
+      },
+      // Seuil nul : un bloc plus haut que la fenêtre n'atteindrait jamais un
+      // ratio d'intersection élevé. La marge basse déclenche juste avant
+      // l'entrée dans le champ.
+      { threshold: 0, rootMargin: '0px 0px -8% 0px' }
+    );
 
-    const schedule = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(check);
-    };
+    for (const el of nodes) {
+      // Ce qui est déjà passé au-dessus du pli est montré sans entrée animée.
+      if (el.getBoundingClientRect().bottom < 0) montrer(el);
+      else io.observe(el);
+    }
 
-    const detach = () => {
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
+    // Garde-fou : si l'onglet passe en arrière-plan, la timeline d'animation
+    // est ralentie et les transitions en cours peuvent rester bloquées. On
+    // retire alors le masquage : mieux vaut perdre l'effet que le contenu.
+    const secours = () => {
+      if (document.visibilityState !== 'hidden') return;
+      document.documentElement.classList.remove('js-reveal');
+      nodes.forEach(montrer);
+      io.disconnect();
     };
-
-    check();
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
+    document.addEventListener('visibilitychange', secours);
 
     return () => {
-      if (frame) cancelAnimationFrame(frame);
+      io.disconnect();
       timers.forEach(window.clearTimeout);
-      detach();
+      document.removeEventListener('visibilitychange', secours);
     };
   }, [pathname]);
 

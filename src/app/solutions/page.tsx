@@ -72,13 +72,13 @@ export default function Page() {
               </caption>
               <thead>
                 <tr className="border-b border-ink-800/20">
-                  <th scope="col" className="w-1/4 py-3 pr-6 font-mono text-[0.625rem] uppercase tracking-[0.16em] text-ink-800/50">
+                  <th scope="col" className="w-1/4 py-3 pr-6 font-mono text-[0.625rem] uppercase tracking-[0.16em] text-ink-800/70">
                     Famille d’outils
                   </th>
-                  <th scope="col" className="py-3 pr-6 font-mono text-[0.625rem] uppercase tracking-[0.16em] text-ink-800/50">
+                  <th scope="col" className="py-3 pr-6 font-mono text-[0.625rem] uppercase tracking-[0.16em] text-ink-800/70">
                     Ce qu’ils font bien
                   </th>
-                  <th scope="col" className="py-3 font-mono text-[0.625rem] uppercase tracking-[0.16em] text-ink-800/50">
+                  <th scope="col" className="py-3 font-mono text-[0.625rem] uppercase tracking-[0.16em] text-ink-800/70">
                     Ce qu’ils laissent de côté
                   </th>
                 </tr>
