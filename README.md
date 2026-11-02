@@ -90,7 +90,25 @@ Deux modes, et l'interface annonce toujours celui qui s'applique :
   le texte de l'encart le dit explicitement.
 
 La clé est publique par conception : la documentation de Web3Forms précise
-qu'elle peut figurer dans une page. Le préfixe `NEXT_PUBLIC_` est donc correct.
+qu'elle peut figurer dans une page. Le préfixe `NEXT_PUBLIC_` est donc correct,
+et elle se déclare en variable ordinaire, pas en secret.
+
+Où la poser, selon la cible de déploiement :
+
+| Cible | Emplacement |
+|---|---|
+| Vercel | Settings → Environment Variables du projet |
+| GitHub Pages | Settings → Secrets and variables → Actions → **Variables** |
+
+Les deux chaînes de déploiement sont indépendantes : une clé posée sur Vercel
+ne vaut pas pour la construction GitHub Pages, et inversement. Celle qui n'a pas
+la clé produit un site où le formulaire bascule sur la messagerie — fonctionnel,
+mais pas ce que vous attendez.
+
+L'adresse de réception des demandes est celle choisie à la création du
+formulaire chez Web3Forms. Elle devrait correspondre à l'adresse affichée sur
+le site (`CONTACT` dans `src/content/cheetah.ts`), faute de quoi le site
+annoncerait une adresse et les demandes arriveraient ailleurs.
 
 Un champ-piège invisible filtre les robots : hors du flux, hors du parcours
 clavier, `aria-hidden`. Une soumission qui le remplit reçoit une confirmation

@@ -32,6 +32,13 @@ jobs:
         env:
           NEXT_PUBLIC_BASE_PATH: /site-vitrine
           NEXT_PUBLIC_SITE_URL: https://santana64.github.io/site-vitrine
+          # Clé d'accès Web3Forms du formulaire de contact. Déclarée en
+          # variable de dépôt et non en secret : elle est publique par
+          # conception et finit de toute façon dans le bundle client.
+          # Settings → Secrets and variables → Actions → Variables.
+          # Si elle n'est pas définie, le formulaire reste fonctionnel et
+          # bascule sur la messagerie du visiteur, en l'annonçant.
+          NEXT_PUBLIC_FORM_ACCESS_KEY: ${{ vars.NEXT_PUBLIC_FORM_ACCESS_KEY }}
 
       - uses: actions/upload-pages-artifact@v3
         with:
