@@ -42,3 +42,7 @@ next-env.d.ts
 
 # Captures de verification
 /verif/
+
+# Copies de travail pour la previsualisation
+/out-artifact/
+/out-form/

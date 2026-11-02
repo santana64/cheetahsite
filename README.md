@@ -37,6 +37,12 @@ Variables d'environnement de build :
 |---|---|---|
 | `NEXT_PUBLIC_BASE_PATH` | Préfixe de chemin (GitHub Pages) | vide |
 | `NEXT_PUBLIC_SITE_URL` | Origine publique, pour `sitemap.xml` et `robots.txt` | URL de prévisualisation |
+| `NEXT_PUBLIC_FORM_ENDPOINT` | URL de dépôt du formulaire de contact | vide → repli messagerie |
+| `NEXT_PUBLIC_FORM_ACCESS_KEY` | Clé publique du prestataire, si elle va dans le corps | vide |
+
+Voir `.env.example` pour le détail. Ces variables sont inlinées dans le
+JavaScript client : elles sont publiques par conception et ne doivent jamais
+contenir de secret.
 
 ## Vérifier
 
@@ -68,11 +74,25 @@ Lighthouse.
 
 ## Formulaire de contact
 
-Le site est un export statique : il n'y a pas de serveur pour recevoir une
-soumission. Le formulaire valide les champs puis compose le message dans le
-logiciel de messagerie de l'utilisateur. Le comportement est annoncé dans
-l'interface. Pour un envoi côté serveur, il faudra brancher un service
-d'acheminement et retirer cette mention.
+Le site est un export statique : il n'a pas de serveur applicatif pour recevoir
+une soumission. L'envoi passe donc par un service tiers d'acheminement de
+formulaires, configuré par `NEXT_PUBLIC_FORM_ENDPOINT`.
+
+Deux modes, et l'interface annonce toujours celui qui s'applique :
+
+- **Endpoint configuré** — la demande part réellement en `POST`. En cas
+  d'échec réseau, la saisie est conservée et le visiteur se voit proposer de
+  repasser par sa messagerie ou de copier l'adresse. Il n'est jamais bloqué.
+- **Endpoint vide** — le bouton compose le message dans la messagerie du
+  visiteur, et le texte de l'encart le dit explicitement.
+
+Un champ-piège invisible filtre les robots : hors du flux, hors du parcours
+clavier, `aria-hidden`. Une soumission qui le remplit reçoit une confirmation
+sans être relayée.
+
+Avant la mise en ligne publique, complétez `/confidentialite/` avec l'identité
+du prestataire retenu, son pays d'établissement et les durées de conservation.
+Il agit comme sous-traitant et doit être déclaré.
 
 ## Application de bureau
 

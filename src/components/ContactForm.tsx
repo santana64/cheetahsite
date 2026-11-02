@@ -3,16 +3,32 @@
 /**
  * Formulaire de prise de contact.
  *
- * Le site est publié en export statique : il n'y a pas de serveur pour
- * recevoir une soumission. Plutôt qu'un formulaire décoratif qui ne mène
- * nulle part, celui-ci compose un message structuré et l'ouvre dans le client
- * de messagerie de l'utilisateur. Le comportement est annoncé explicitement
- * avant l'envoi, et l'adresse reste copiable pour ceux qui préfèrent écrire
- * eux-mêmes.
+ * Le site est publié en export statique : il n'y a aucun serveur applicatif
+ * pour recevoir une soumission. La demande part donc vers un service tiers
+ * d'acheminement de formulaires, configuré au build.
+ *
+ *   NEXT_PUBLIC_FORM_ENDPOINT     URL de dépôt complète
+ *   NEXT_PUBLIC_FORM_ACCESS_KEY   clé publique, si le prestataire l'attend
+ *                                 dans le corps de la requête
+ *
+ * Ces deux valeurs sont publiques par conception — ce sont des identifiants de
+ * formulaire, pas des secrets. Le préfixe NEXT_PUBLIC_ est donc correct : rien
+ * de confidentiel n'est exposé. Un secret d'API n'aurait rien à faire ici et
+ * imposerait un serveur.
+ *
+ * Tant que l'URL n'est pas renseignée, le formulaire bascule sur la composition
+ * d'un message dans la messagerie de l'utilisateur. Le comportement effectif est
+ * annoncé dans l'interface, dans les deux cas : on ne laisse jamais croire à un
+ * envoi qui n'a pas lieu.
  */
 
+import Link from 'next/link';
 import { FormEvent, useRef, useState } from 'react';
 import { CONTACT } from '@/content/cheetah';
+
+const ENDPOINT = process.env.NEXT_PUBLIC_FORM_ENDPOINT ?? '';
+const ACCESS_KEY = process.env.NEXT_PUBLIC_FORM_ACCESS_KEY ?? '';
+const ENVOI_DIRECT = ENDPOINT.length > 0;
 
 type Champs = {
   nom: string;
@@ -21,6 +37,8 @@ type Champs = {
   role: string;
   contexte: string;
 };
+
+type Etat = 'saisie' | 'envoi' | 'envoye' | 'echec';
 
 const ROLES = [
   'Direction de projet / PMO',
@@ -52,7 +70,7 @@ function Field({
         {label}
       </label>
       {hint && (
-        <p id={`${id}-hint`} className="mt-1 text-xs text-steel-500">
+        <p id={`${id}-hint`} className="mt-1 text-xs text-steel-400">
           {hint}
         </p>
       )}
@@ -67,14 +85,29 @@ function Field({
 }
 
 const champClass =
-  'w-full rounded-sm border border-white/[0.12] bg-ink-800 px-3.5 py-3 text-sm text-paper placeholder:text-steel-500 transition-colors focus:border-volt focus:outline-none';
+  'w-full rounded-sm border border-white/[0.12] bg-ink-800 px-3.5 py-3 text-sm text-paper placeholder:text-steel-400 transition-colors focus:border-volt focus:outline-none disabled:opacity-60';
+
+function corpsLisible(v: Champs) {
+  return [
+    `Nom : ${v.nom}`,
+    `Organisation : ${v.organisation}`,
+    `E-mail : ${v.email}`,
+    v.role ? `Fonction : ${v.role}` : null,
+    '',
+    'Contexte :',
+    v.contexte,
+  ]
+    .filter((l) => l !== null)
+    .join('\n');
+}
 
 export function ContactForm() {
   const [v, setV] = useState<Champs>(VIDE);
   const [errors, setErrors] = useState<Partial<Record<keyof Champs, string>>>({});
-  const [envoye, setEnvoye] = useState(false);
+  const [etat, setEtat] = useState<Etat>('saisie');
   const [copie, setCopie] = useState(false);
-  const resume = useRef<HTMLParagraphElement>(null);
+  const leurre = useRef<HTMLInputElement>(null);
+  const statut = useRef<HTMLParagraphElement>(null);
 
   const set = (k: keyof Champs) => (e: { target: { value: string } }) =>
     setV((p) => ({ ...p, [k]: e.target.value }));
@@ -90,36 +123,62 @@ export function ContactForm() {
     return err;
   }
 
-  function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    const err = valider(v);
-    setErrors(err);
-    if (Object.keys(err).length > 0) {
-      const first = document.getElementById(`c-${Object.keys(err)[0]}`);
-      first?.focus();
-      return;
-    }
-
-    const corps = [
-      `Nom : ${v.nom}`,
-      `Organisation : ${v.organisation}`,
-      `E-mail : ${v.email}`,
-      v.role ? `Fonction : ${v.role}` : null,
-      '',
-      'Contexte :',
-      v.contexte,
-      '',
-      '— Envoyé depuis le site CheetahSoft',
-    ]
-      .filter((l) => l !== null)
-      .join('\n');
-
-    const sujet = `Demande de démonstration — ${v.organisation}`;
+  function versMessagerie(c: Champs) {
+    const sujet = `Demande de démonstration — ${c.organisation}`;
+    const corps = `${corpsLisible(c)}\n\n— Envoyé depuis le site CheetahSoft`;
     window.location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
       sujet
     )}&body=${encodeURIComponent(corps)}`;
-    setEnvoye(true);
-    window.setTimeout(() => resume.current?.focus(), 80);
+  }
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (etat === 'envoi') return;
+
+    const err = valider(v);
+    setErrors(err);
+    if (Object.keys(err).length > 0) {
+      document.getElementById(`c-${Object.keys(err)[0]}`)?.focus();
+      return;
+    }
+
+    // Piège à robots : un champ invisible que seul un automate remplit.
+    // On simule une réussite plutôt que de signaler la détection.
+    if (leurre.current?.value) {
+      setEtat('envoye');
+      return;
+    }
+
+    if (!ENVOI_DIRECT) {
+      versMessagerie(v);
+      setEtat('envoye');
+      window.setTimeout(() => statut.current?.focus(), 80);
+      return;
+    }
+
+    setEtat('envoi');
+    try {
+      const reponse = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          ...(ACCESS_KEY ? { access_key: ACCESS_KEY } : {}),
+          subject: `Demande de démonstration — ${v.organisation}`,
+          from_name: v.nom,
+          email: v.email,
+          organisation: v.organisation,
+          fonction: v.role || 'non précisée',
+          contexte: v.contexte,
+          message: corpsLisible(v),
+        }),
+      });
+      if (!reponse.ok) throw new Error(`HTTP ${reponse.status}`);
+      setEtat('envoye');
+      setV(VIDE);
+    } catch {
+      setEtat('echec');
+    }
+    window.setTimeout(() => statut.current?.focus(), 80);
   }
 
   async function copier() {
@@ -132,115 +191,193 @@ export function ContactForm() {
     }
   }
 
+  const enCours = etat === 'envoi';
+
   return (
     <div className="panel corner-ticks p-6 sm:p-9">
-      <form onSubmit={onSubmit} noValidate className="space-y-6">
-        <div className="grid gap-6 sm:grid-cols-2">
-          <Field id="c-nom" label="Nom" error={errors.nom}>
-            <input
-              id="c-nom"
-              name="nom"
-              type="text"
-              autoComplete="name"
-              value={v.nom}
-              onChange={set('nom')}
-              aria-invalid={!!errors.nom}
-              aria-describedby={errors.nom ? 'c-nom-err' : undefined}
-              className={champClass}
-            />
-          </Field>
-
-          <Field id="c-organisation" label="Organisation" error={errors.organisation}>
-            <input
-              id="c-organisation"
-              name="organisation"
-              type="text"
-              autoComplete="organization"
-              value={v.organisation}
-              onChange={set('organisation')}
-              aria-invalid={!!errors.organisation}
-              aria-describedby={errors.organisation ? 'c-organisation-err' : undefined}
-              className={champClass}
-            />
-          </Field>
-
-          <Field id="c-email" label="E-mail professionnel" error={errors.email}>
-            <input
-              id="c-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              inputMode="email"
-              value={v.email}
-              onChange={set('email')}
-              aria-invalid={!!errors.email}
-              aria-describedby={errors.email ? 'c-email-err' : undefined}
-              className={champClass}
-            />
-          </Field>
-
-          <Field id="c-role" label="Fonction" hint="Facultatif">
-            <select id="c-role" name="role" value={v.role} onChange={set('role')} className={champClass}>
-              <option value="">—</option>
-              {ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-
-        <Field
-          id="c-contexte"
-          label="Votre contexte"
-          error={errors.contexte}
-          hint="Combien de projets en parallèle, comment le budget est suivi aujourd’hui, ce qui vous pose problème."
-        >
-          <textarea
-            id="c-contexte"
-            name="contexte"
-            rows={6}
-            value={v.contexte}
-            onChange={set('contexte')}
-            aria-invalid={!!errors.contexte}
-            aria-describedby={
-              errors.contexte ? 'c-contexte-err c-contexte-hint' : 'c-contexte-hint'
-            }
-            className={`${champClass} resize-y`}
-          />
-        </Field>
-
-        <div className="rounded-sm border border-white/[0.09] bg-ink-800/60 p-4">
-          <p className="text-xs leading-relaxed text-steel-400">
-            <strong className="text-steel-200">Comment fonctionne l’envoi.</strong> Ce site est
-            publié en pages statiques et ne conserve aucune donnée. Le bouton ci-dessous compose le
-            message dans votre logiciel de messagerie ; rien n’est transmis tant que vous ne
-            l’envoyez pas vous-même.
+      {etat === 'envoye' ? (
+        <div role="status" aria-live="polite">
+          <p className="eyebrow !text-volt">Demande transmise</p>
+          <h2 className="display-sm mt-5 text-paper">
+            {ENVOI_DIRECT ? 'C’est parti.' : 'Votre messagerie devrait s’être ouverte.'}
+          </h2>
+          <p className="body-copy mt-4 max-w-prose">
+            {ENVOI_DIRECT
+              ? `Nous revenons vers vous à l’adresse indiquée. Si vous voulez ajouter une pièce — un extrait de votre structure budgétaire, un arrêté — écrivez directement à ${CONTACT.email}.`
+              : `Le message est pré-rempli à destination de ${CONTACT.email}. Il ne partira que lorsque vous l’enverrez vous-même. Si rien ne s’est ouvert, copiez l’adresse ci-dessous.`}
           </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <button type="button" onClick={copier} className="btn btn-ghost">
+              {copie ? 'Adresse copiée' : 'Copier l’adresse'}
+            </button>
+            <button type="button" onClick={() => setEtat('saisie')} className="btn btn-ghost">
+              Envoyer une autre demande
+            </button>
+          </div>
         </div>
+      ) : (
+        <form onSubmit={onSubmit} noValidate className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <Field id="c-nom" label="Nom" error={errors.nom}>
+              <input
+                id="c-nom"
+                name="nom"
+                type="text"
+                autoComplete="name"
+                value={v.nom}
+                onChange={set('nom')}
+                disabled={enCours}
+                aria-invalid={!!errors.nom}
+                aria-describedby={errors.nom ? 'c-nom-err' : undefined}
+                className={champClass}
+              />
+            </Field>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button type="submit" className="btn btn-primary">
-            Préparer le message
-          </button>
-          <button type="button" onClick={copier} className="btn btn-ghost">
-            {copie ? 'Adresse copiée' : 'Copier l’adresse'}
-          </button>
-        </div>
+            <Field id="c-organisation" label="Organisation" error={errors.organisation}>
+              <input
+                id="c-organisation"
+                name="organisation"
+                type="text"
+                autoComplete="organization"
+                value={v.organisation}
+                onChange={set('organisation')}
+                disabled={enCours}
+                aria-invalid={!!errors.organisation}
+                aria-describedby={errors.organisation ? 'c-organisation-err' : undefined}
+                className={champClass}
+              />
+            </Field>
 
-        <p
-          ref={resume}
-          tabIndex={-1}
-          role="status"
-          aria-live="polite"
-          className={`text-sm ${envoye ? 'text-volt' : 'sr-only'}`}
-        >
-          {envoye
-            ? `Votre logiciel de messagerie devrait s’être ouvert avec le message pré-rempli à destination de ${CONTACT.email}. S’il ne s’ouvre pas, copiez l’adresse et écrivez-nous directement.`
-            : ''}
-        </p>
-      </form>
+            <Field id="c-email" label="E-mail professionnel" error={errors.email}>
+              <input
+                id="c-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                value={v.email}
+                onChange={set('email')}
+                disabled={enCours}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'c-email-err' : undefined}
+                className={champClass}
+              />
+            </Field>
+
+            <Field id="c-role" label="Fonction" hint="Facultatif">
+              <select
+                id="c-role"
+                name="role"
+                value={v.role}
+                onChange={set('role')}
+                disabled={enCours}
+                className={champClass}
+              >
+                <option value="">—</option>
+                {ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
+
+          <Field
+            id="c-contexte"
+            label="Votre contexte"
+            error={errors.contexte}
+            hint="Combien de projets en parallèle, comment le budget est suivi aujourd’hui, ce qui vous pose problème."
+          >
+            <textarea
+              id="c-contexte"
+              name="contexte"
+              rows={6}
+              value={v.contexte}
+              onChange={set('contexte')}
+              disabled={enCours}
+              aria-invalid={!!errors.contexte}
+              aria-describedby={
+                errors.contexte ? 'c-contexte-err c-contexte-hint' : 'c-contexte-hint'
+              }
+              className={`${champClass} resize-y`}
+            />
+          </Field>
+
+          {/* Piège à robots — hors du flux, hors du parcours clavier, non annoncé */}
+          <div className="absolute h-px w-px overflow-hidden opacity-0" aria-hidden="true">
+            <label htmlFor="c-site">Ne pas remplir</label>
+            <input id="c-site" name="site" type="text" ref={leurre} tabIndex={-1} autoComplete="off" />
+          </div>
+
+          <div className="rounded-sm border border-white/[0.09] bg-ink-800/60 p-4">
+            <p className="text-xs leading-relaxed text-steel-400">
+              <strong className="text-steel-200">Ce qui se passe à l’envoi.</strong>{' '}
+              {ENVOI_DIRECT ? (
+                <>
+                  Votre demande est transmise par un prestataire d’acheminement de formulaires, qui
+                  nous la relaie par e-mail. Les champs ci-dessus sont les seules données
+                  transmises ; ce site ne dépose aucun cookie et ne conserve rien de son côté. Le
+                  détail figure dans la{' '}
+                  <Link
+                    href="/confidentialite/"
+                    className="text-volt underline-offset-4 hover:underline"
+                  >
+                    page confidentialité
+                  </Link>
+                  .
+                </>
+              ) : (
+                <>
+                  Aucun serveur n’est configuré pour l’instant : le bouton compose le message dans
+                  votre logiciel de messagerie, et rien n’est transmis tant que vous ne l’envoyez
+                  pas vous-même.
+                </>
+              )}
+            </p>
+          </div>
+
+          {etat === 'echec' && (
+            <div
+              role="alert"
+              className="rounded-sm border-l-2 border-drift bg-drift/[0.07] p-4 text-xs leading-relaxed text-steel-200"
+            >
+              <strong className="text-drift">L’envoi a échoué.</strong> Votre saisie est conservée
+              ci-dessus. Réessayez, ou envoyez-la directement par e-mail — le bouton ci-dessous
+              recompose le même message dans votre messagerie.
+              <span className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => versMessagerie(v)}
+                  className="btn btn-ghost !min-h-0 !px-3 !py-1.5 !text-xs"
+                >
+                  Passer par ma messagerie
+                </button>
+                <button
+                  type="button"
+                  onClick={copier}
+                  className="btn btn-ghost !min-h-0 !px-3 !py-1.5 !text-xs"
+                >
+                  {copie ? 'Adresse copiée' : CONTACT.email}
+                </button>
+              </span>
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="submit" disabled={enCours} className="btn btn-primary">
+              {enCours ? 'Envoi en cours…' : ENVOI_DIRECT ? 'Envoyer la demande' : 'Préparer le message'}
+            </button>
+            <button type="button" onClick={copier} disabled={enCours} className="btn btn-ghost">
+              {copie ? 'Adresse copiée' : 'Copier l’adresse'}
+            </button>
+          </div>
+
+          <p ref={statut} tabIndex={-1} role="status" aria-live="polite" className="sr-only">
+            {enCours ? 'Envoi en cours' : ''}
+          </p>
+        </form>
+      )}
     </div>
   );
 }

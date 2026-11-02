@@ -21,13 +21,53 @@ export default function Page() {
         <p>
           Ce site est publié en pages statiques. Il ne dépose aucun cookie, n’intègre aucun outil de
           mesure d’audience, aucun pixel publicitaire et aucun lecteur de réseau social. Aucune
-          donnée de navigation n’est transmise à un tiers par le code de ce site.
+          donnée de navigation n’est transmise à un tiers par le code de ce site, et aucune donnée
+          n’est conservée sur ce site lui-même.
+        </p>
+      </section>
+
+      <section>
+        <h2>Le formulaire de contact</h2>
+        <p>
+          Ce site n’ayant pas de serveur applicatif, l’envoi du formulaire passe par un prestataire
+          d’acheminement de formulaires, qui reçoit votre demande et nous la relaie par e-mail. Ce
+          prestataire agit comme sous-traitant au sens du règlement général sur la protection des
+          données.
+        </p>
+        <p>Les seules données transmises sont celles que vous saisissez :</p>
+        <ul>
+          <li>votre nom ;</li>
+          <li>votre organisation ;</li>
+          <li>votre adresse e-mail professionnelle ;</li>
+          <li>votre fonction, si vous la renseignez — le champ est facultatif ;</li>
+          <li>le texte décrivant votre contexte.</li>
+        </ul>
+        <p>
+          Il n’y a ni champ caché collectant autre chose, ni traceur associé à l’envoi. Le
+          formulaire comporte un champ-piège invisible, destiné aux robots : il n’est jamais rempli
+          par une personne et son contenu n’est pas exploité.
         </p>
         <p>
-          Le formulaire de contact ne transmet rien à un serveur : il compose un message dans votre
-          propre logiciel de messagerie, que vous restez libre d’envoyer ou non. Tant que vous ne
-          l’envoyez pas, rien ne quitte votre poste.
+          La base légale est l’intérêt légitime à répondre à une sollicitation commerciale que vous
+          avez initiée. Ces données servent uniquement à vous répondre et à préparer l’échange :
+          elles ne sont ni revendues, ni versées à une liste de diffusion, ni utilisées pour une
+          prospection non sollicitée.
         </p>
+        <p>
+          Si vous préférez ne pas passer par ce prestataire, écrivez-nous directement à{' '}
+          <a href={`mailto:${CONTACT.email}`} className="text-volt underline-offset-4 hover:underline">
+            {CONTACT.email}
+          </a>
+          . Le formulaire propose d’ailleurs ce chemin en cas d’échec d’envoi.
+        </p>
+        <div className="mt-5">
+          <ANotifier>
+            Identité et pays d’établissement du prestataire d’acheminement retenu, existence d’un
+            accord de sous-traitance, et durée de conservation des demandes de son côté comme du
+            nôtre. Ces éléments dépendent du prestataire effectivement configuré et doivent être
+            renseignés avant la mise en ligne publique.
+          </ANotifier>
+        </div>
       </section>
 
       <section>
@@ -48,10 +88,9 @@ export default function Page() {
       <section>
         <h2>Données transmises par e-mail</h2>
         <p>
-          Si vous nous écrivez, les informations contenues dans votre message (nom, organisation,
-          adresse e-mail, description de votre contexte) sont utilisées uniquement pour répondre à
-          votre demande et préparer un éventuel échange. Elles ne sont ni revendues, ni versées à
-          une liste de diffusion, ni utilisées pour une prospection non sollicitée.
+          Si vous nous écrivez directement, par e-mail plutôt que par le formulaire, les
+          informations contenues dans votre message sont utilisées de la même manière : répondre à
+          votre demande et préparer un éventuel échange, rien d’autre.
         </p>
         <div className="mt-5">
           <ANotifier>
