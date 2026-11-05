@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import ForecastSimulator from "@/components/ForecastSimulator";
 import CostGrid from "@/components/product/CostGrid";
@@ -85,51 +84,17 @@ export default function Accueil() {
           </div>
         </div>
       </section>
-      <section className="bg-bone py-20 text-ink-900 md:py-28">
-        <div className="shell source-showcase">
+      <section className="bg-bone py-16 text-ink-900 md:py-20">
+        <div className="shell grid items-start gap-8 md:grid-cols-2 md:gap-16">
           <div>
-            <p className="eyebrow !text-ink-500">Le produit, sans filtre</p>
-            <h2 className="display-lg mt-6">
-              La densité
-              <br />
-              du vrai travail.
-            </h2>
-            <p className="mt-6 text-sm leading-relaxed text-ink-500">
-              Une référence budgétaire, un avancement, une prévision. La capture
-              d’origine expose les colonnes et les valeurs du logiciel, sans
-              retouche.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-ink-500">
-              La reconstitution lisible ci-dessous reprend ces données. Les
-              incohérences du récapitulatif source y sont signalées ; elles ne
-              sont pas corrigées dans l’image.
-            </p>
-            <Link href="/cheetah-cost/" className="btn btn-dark mt-7">
-              Découvrir Cheetah Cost ↗
-            </Link>
+            <p className="eyebrow !text-ink-500">Cheetah Cost</p>
+            <h2 className="display-md mt-5">Une référence.<br />Une mesure.<br />Une décision.</h2>
           </div>
-          <figure>
-            <a
-              href="/screenshot-cost.webp"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Ouvrir la capture réelle de Cheetah Cost en grand"
-            >
-              <Image
-                src="/screenshot-cost.webp"
-                alt="Capture réelle de Cheetah Cost : cinq lignes budgétaires et colonnes de référence, avancement, coût prévisionnel et écart."
-                width={1920}
-                height={330}
-                className="h-auto"
-                sizes="(max-width: 767px) 100vw, 60vw"
-              />
-            </a>
-            <figcaption>
-              CAPTURE PRODUIT RÉELLE / Données de test de l’éditeur.
-              <br />
-              Ouvrir l’image pour consulter l’interface d’origine.
-            </figcaption>
-          </figure>
+          <div>
+            <p className="text-lg leading-relaxed text-ink-700">Budget à date, avancement physique, coût prévisionnel : lisez le projet dans une seule grille.</p>
+            <p className="mt-4 text-sm leading-relaxed text-ink-500">La présentation ci-dessous reprend les données du logiciel dans une interface lisible. Les différences avec le récapitulatif source sont signalées.</p>
+            <Link href="/cheetah-cost/" className="btn btn-dark mt-6">Découvrir Cheetah Cost ↗</Link>
+          </div>
         </div>
       </section>
       <section
