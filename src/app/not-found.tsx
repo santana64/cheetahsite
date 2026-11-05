@@ -1,5 +1,14 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import CoreFallback from '@/components/CoreFallback';
+
+// Sans ce titre, la page d'erreur héritait de celui de l'accueil : un
+// visiteur arrivé sur une adresse morte lisait dans son onglet le titre
+// d'une page qu'il n'avait pas sous les yeux.
+export const metadata: Metadata = {
+  title: 'Page introuvable',
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
   return (

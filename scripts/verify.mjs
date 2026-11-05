@@ -35,6 +35,9 @@ const ROUTES = [
   '/404.html',
 ];
 
+/** Titre de l'accueil, releve au premier passage (voir le garde-fou). */
+const TITRE_ACCUEIL = { valeur: '' };
+
 const LARGEURS = [
   { nom: '375', w: 375, h: 812 },
   { nom: '768', w: 768, h: 1024 },
@@ -59,6 +62,23 @@ const nav = async (page, route) => {
   page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
   await page.goto(ORIGINE + route, { waitUntil: 'load', timeout: 30000 });
   await page.waitForTimeout(2200);
+
+  // Garde-fou : servi en mode page unique (`serve -s`), un serveur statique
+  // renvoie l'accueil pour TOUTES les routes. Toute la suite passerait alors
+  // au vert en validant quatorze fois la même page. On refuse de continuer
+  // plutôt que de rendre un rapport qui ne veut rien dire.
+  const titre = await page.title();
+  if (route === '/') {
+    TITRE_ACCUEIL.valeur = titre;
+  } else if (TITRE_ACCUEIL.valeur && titre === TITRE_ACCUEIL.valeur) {
+    console.error('');
+    console.error(`ARRET : ${route} renvoie le titre de l’accueil (« ${titre} »).`);
+    console.error('Le serveur reecrit les routes vers index.html, donc toute la');
+    console.error('suite validerait la meme page. Servir l’export sans le drapeau');
+    console.error('page unique : « npx serve out -l 3501 », et non « serve -s ».');
+    process.exit(2);
+  }
+
   return errs;
 };
 
