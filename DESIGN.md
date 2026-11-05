@@ -7,41 +7,55 @@ règles visuelles, le système de mouvement et les garde-fous de fiabilité.
 
 ---
 
-## 1. Le concept — « Le noyau de contrôle »
+## 1. Le concept — « L'écart »
 
 L'objet signature n'est ni un globe, ni une sphère de particules, ni un
-guépard. C'est **un faisceau de lignes budgétaires qui court le long d'un axe
-de temps projet**.
-
-Chaque brin représente une ligne budgétaire. Sa déviation verticale représente
-l'écart entre coût prévisionnel et budget à date, et sa couleur suit cet écart :
-volt quand la ligne tient, ambre quand elle glisse, rouge quand elle dérive.
-
-Quatre éléments composent la scène :
+guépard. C'est **l'écart entre le budget à date et le coût prévisionnel**,
+relevé ligne budgétaire par ligne budgétaire, à des dates d'arrêté
+successives. Autrement dit : ce que le logiciel calcule, rendu visible.
 
 | Élément | Ce qu'il représente |
 |---|---|
-| Le faisceau | Les lignes budgétaires du projet, de l'origine à la fin |
-| Les anneaux de mesure | Les arrêtés successifs — chacun plus resserré que le précédent |
-| La porte terminale | Le budget à date : la cible sur laquelle le projet doit converger |
-| Le balayage lumineux | La date d'arrêté qui parcourt le projet |
+| Le plan `y = 0` | Le budget à date (BàD) — la référence contre laquelle on mesure |
+| Les cinq rubans | Les lignes budgétaires, à leur hauteur d'écart `E = CP − BàD` |
+| L'épaisseur d'un ruban | Le poids budgétaire de la ligne dans le BàD total |
+| La surface hachurée | L'écart lui-même : la quantité, pas une illustration de la quantité |
+| Les cadres verticaux | Les arrêtés — les dates auxquelles l'écart est relevé |
+| Les cubes | Les relevés : un par ligne et par arrêté |
 
-### La narration en trois temps
+La couleur suit le signe de l'écart : **ambre** au-dessus de la référence
+(dépassement), **volt** en dessous (économie), **acier** quand la ligne tient.
 
-Le défilement ne fait pas défiler des effets : il fait passer le système d'un
-état à un autre.
+### Les valeurs sont réelles
 
-1. **Le désordre** — le faisceau s'ouvre, l'amplitude croît avec l'avancement,
-   les couleurs partent vers l'ambre et le rouge. Message : *la dérive se voit
-   avant de se payer*.
-2. **La mesure** — la caméra glisse vers la porte, le faisceau commence à se
-   peigner. Message : *les dépenses sont à jour, l'avancement ne l'est pas*.
-3. **La maîtrise** — le faisceau devient un treillis discipliné qui converge
-   dans la porte, les écarts se résorbent. Message : *une référence, une
-   mesure, une projection*.
+Les cinq rubans portent `COST_LIGNES`, relevé sur la capture du logiciel
+versionnée dans ce dépôt. Trois lignes sur cinq ont un écart nul : elles
+restent plates, et c'est voulu. Le récit tient précisément à ce que deux
+seulement bougent — **+29 sur la Définition**, **−40 sur la Fabrication** —
+alors que le total affiche **−3**. L'agrégat est calme, le détail ne l'est
+pas. C'est l'argument du produit, et il n'a pas eu besoin d'être inventé.
 
-La mise en ordre n'est pas décorative : `uOrder` interpole littéralement entre
-une position bruitée et une position de treillis, dans le vertex shader.
+### La narration, et pourquoi elle ne ment pas
+
+Seuls trois instants sont tracés, parce que seuls trois sont connus :
+l'origine (où l'écart est nul par construction, `CP = BàD` avant tout
+travail), l'arrêté précédent (`E préc.`) et l'arrêté courant (`E`). Aucune
+histoire intermédiaire n'est fabriquée pour faire joli.
+
+Le défilement ne pilote pas une amplitude décorative : il avance **l'horizon
+de connaissance**. Au repos, la courbe s'arrête à l'arrêté précédent et sa
+dernière valeur connue se prolonge à plat — c'est l'état du projet avant le
+nouveau relevé. En défilant, l'arrêté courant tombe et la dérive apparaît.
+
+C'est littéralement le titre de la page : *la dérive se voit avant de se
+payer*. Dans le shader, cela tient en une ligne :
+`float tc = min(t, mix(0.5, 1.0, uOrder));`
+
+### Règle
+
+Aucun contenu ne dépend d'une animation. La scène est décorative au sens
+technique — `aria-hidden`, repli SVG sans WebGL, image unique en mouvement
+réduit — même si elle est signifiante au sens narratif.
 
 ---
 
@@ -229,7 +243,7 @@ src/
     home/         la séquence narrative de l'accueil
   content/        source unique de vérité du contenu et des niveaux de preuve
   hooks/          useScrollProgress
-  three/          coreState, Strands (shader), Scene (composition)
+  three/          coreState, Ecarts (shaders), Scene (composition)
 scripts/
   verify.mjs      parcours multi-largeurs, modes dégradés, clavier, formulaire
   perf.mjs        mesures de laboratoire

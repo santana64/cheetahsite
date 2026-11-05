@@ -101,8 +101,6 @@ export function ControlCore({ className = '' }: { className?: string }) {
   if (support === 'none') return <CoreFallback className={className} />;
   if (support === 'pending') return <div className={className} aria-hidden="true" />;
 
-  const strands = small ? 13 : 20;
-  const segments = small ? 30 : 54;
 
   return (
     <div ref={host} className={className} aria-hidden="true">
@@ -116,7 +114,7 @@ export function ControlCore({ className = '' }: { className?: string }) {
           stencil: false,
           depth: true,
         }}
-        camera={{ fov: small ? 56 : 42, near: 0.1, far: 90, position: [1.6, 2.0, 11.8] }}
+        camera={{ fov: small ? 54 : 42, near: 0.1, far: 90, position: [0.2, 1.05, 12.9] }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = 1.05;
@@ -133,7 +131,7 @@ export function ControlCore({ className = '' }: { className?: string }) {
         }}
       >
         <Invalidator reduced={reduced} />
-        <Scene strands={strands} segments={segments} />
+        <Scene compact={small} />
       </Canvas>
     </div>
   );
