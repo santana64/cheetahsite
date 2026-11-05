@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { calculateForecast, type ForecastMode } from "@/lib/finance";
+import styles from "./ForecastSimulator.module.css";
 
 const fmt = (n: number | null, decimals = 1) =>
   n === null
@@ -17,6 +18,7 @@ function Slider({
   min = 0,
   max = 2000,
   unit = "k€",
+  step,
   onChange,
 }: {
   id: string;
@@ -25,15 +27,16 @@ function Slider({
   min?: number;
   max?: number;
   unit?: string;
+  step?: number;
   onChange: (value: number) => void;
 }) {
   return (
-    <div>
-      <div className="flex items-baseline justify-between gap-4">
-        <label htmlFor={id} className="text-sm font-medium text-paper">
+    <div className={styles.slider}>
+      <div className={styles.sliderLabel}>
+        <label htmlFor={id} className={styles.inputLabel}>
           {label}
         </label>
-        <output htmlFor={id} className="num text-sm text-volt">
+        <output htmlFor={id} className={styles.inputOutput}>
           {fmt(value)} {unit}
         </output>
       </div>
@@ -42,10 +45,10 @@ function Slider({
         type="range"
         min={min}
         max={max}
-        step={unit === "%" ? 1 : 10}
+        step={step ?? (unit === "%" ? 1 : 10)}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-2 min-h-11 w-full"
+        className={styles.range}
       />
     </div>
   );
@@ -112,23 +115,50 @@ export function ForecastSimulator() {
       "Écart courant − écart précédent",
     ],
   ];
+  const reset = () => {
+    setInitialBudget(800);
+    setVariation(0);
+    setProgress(45);
+    setExpenses(420);
+    setRemaining(500);
+    setPreviousVariance(9);
+    setMode("performance");
+  };
   return (
-    <div className="panel finance-simulator corner-ticks overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4 sm:px-7">
-        <p className="eyebrow !text-volt">Laboratoire de prévision</p>
-        <p className="font-mono text-xs text-amber">
-          Données fictives · démonstration pédagogique
-        </p>
-      </div>
-      <div className="grid gap-10 p-5 sm:p-7 lg:grid-cols-2 lg:gap-12">
+    <div className={`finance-simulator ${styles.simulator}`}>
+      <header className={styles.header}>
+        <div>
+          <span className={styles.statusDot} aria-hidden="true" /> LABORATOIRE /
+          COST
+        </div>
+        <span>Données fictives · modèle pédagogique</span>
+        <button type="button" onClick={reset}>
+          Réinitialiser <span aria-hidden="true">↺</span>
+        </button>
+      </header>
+      <div className={styles.layout}>
         <form
-          className="space-y-5"
+          className={styles.inputs}
           onSubmit={(event) => event.preventDefault()}
         >
-          <p className="text-sm leading-relaxed text-steel-300">
-            Changez les hypothèses. Observez ce qu’un suivi des seules dépenses
-            ne révèle pas.
-          </p>
+          <a className={styles.mobileSummary} href={`#${id("result")}`}>
+            <span>
+              Prévision{" "}
+              <strong>
+                {r.forecast === null ? "À estimer" : `${fmt(r.forecast)} k€`}
+              </strong>
+            </span>
+            <span style={{ color }}>
+              {r.variance === null
+                ? "Écart non calculable"
+                : `${signed(r.variance)} k€ d’écart`}{" "}
+              <span aria-hidden="true">↑</span>
+            </span>
+          </a>
+          <div className={styles.sectionTitle}>
+            <span>01</span>
+            <h3>Construire la référence</h3>
+          </div>
           <Slider
             id={id("bi")}
             label="Budget initial"
@@ -146,9 +176,15 @@ export function ForecastSimulator() {
             value={variation}
             onChange={setVariation}
           />
-          <div className="flex items-center justify-between border-y border-white/10 py-3 text-sm">
+          <div className={styles.budgetResult}>
             <span>Budget à date · calculé</span>
-            <output className="num text-paper">{fmt(r.budget)} k€</output>
+            <output>
+              {fmt(r.budget)} <small>k€</small>
+            </output>
+          </div>
+          <div className={styles.sectionTitle}>
+            <span>02</span>
+            <h3>Mesurer le travail</h3>
           </div>
           <Slider
             id={id("av")}
@@ -164,16 +200,20 @@ export function ForecastSimulator() {
             value={expenses}
             onChange={setExpenses}
           />
-          <fieldset className="border-t border-white/10 pt-5">
-            <legend className="text-sm font-medium text-paper">
-              Estimation du reste à faire
+          <fieldset className={styles.estimation}>
+            <legend>
+              <span>03</span> Estimer le reste à faire
             </legend>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className={styles.modes}>
               {(
                 [
-                  { value: "manual", label: "Saisie métier" },
-                  { value: "budget", label: "Au budget" },
-                  { value: "performance", label: "Corrigé de la performance" },
+                  { value: "manual", label: "Saisie métier", code: "M" },
+                  { value: "budget", label: "Au budget", code: "B" },
+                  {
+                    value: "performance",
+                    label: "Corrigé de la performance",
+                    code: "P",
+                  },
                 ] as const
               ).map((item) => (
                 <button
@@ -181,18 +221,18 @@ export function ForecastSimulator() {
                   type="button"
                   aria-pressed={mode === item.value}
                   onClick={() => setMode(item.value)}
-                  className={`btn !px-3 !text-xs ${mode === item.value ? "btn-primary" : "btn-ghost"}`}
                 >
+                  <span aria-hidden="true">{item.code}</span>
                   {item.label}
                 </button>
               ))}
             </div>
-            <p className="mt-3 text-xs leading-relaxed text-steel-300">
+            <p>
               {mode === "manual"
-                ? "Reste à faire estimé indépendamment par le responsable de projet."
+                ? "Le responsable estime le travail restant indépendamment des dépenses déjà engagées."
                 : mode === "budget"
-                  ? "RàF = budget à date − valeur acquise. Le travail restant est supposé réalisé au budget."
-                  : "RàF = (budget à date − valeur acquise) ÷ indice de performance. La performance observée est supposée se poursuivre."}
+                  ? "Le travail restant est supposé réalisé au budget. RàF = budget à date − valeur acquise."
+                  : "La performance constatée est supposée se poursuivre. RàF = (budget à date − valeur acquise) ÷ indice de performance."}
             </p>
           </fieldset>
           {mode === "manual" && (
@@ -203,98 +243,146 @@ export function ForecastSimulator() {
               onChange={setRemaining}
             />
           )}
-          <Slider
-            id={id("eprec")}
-            label="Écart à l’arrêté précédent"
-            min={-200}
-            max={200}
-            value={previousVariance}
-            onChange={setPreviousVariance}
-          />
+          <details className={styles.previous}>
+            <summary>
+              Comparer à l’arrêté précédent <span aria-hidden="true">+</span>
+            </summary>
+            <Slider
+              id={id("eprec")}
+              label="Écart à l’arrêté précédent"
+              step={1}
+              min={-200}
+              max={200}
+              value={previousVariance}
+              onChange={setPreviousVariance}
+            />
+          </details>
         </form>
-        <div>
-          <p className="eyebrow">Lecture de l’arrêté</p>
-          <p
-            className="mt-5 font-display text-4xl font-bold tracking-tight sm:text-5xl"
-            style={{ color }}
-          >
-            {r.forecast === null ? "À estimer" : `${fmt(r.forecast)} k€`}
-          </p>
-          <p className="mt-2 text-sm text-steel-300">
-            Coût final anticipé ·{" "}
-            {r.variance === null
-              ? "performance insuffisante pour projeter"
-              : positive
-                ? "dépassement prévisionnel"
-                : r.variance < 0
-                  ? "économie prévisionnelle"
-                  : "à la cible"}
-          </p>
-          <div className="mt-7" aria-hidden="true">
-            <div className="relative h-14 overflow-hidden bg-ink-700">
-              <span
-                className="absolute inset-y-0 left-0 bg-volt transition-[width] duration-300 motion-reduce:transition-none"
-                style={{ width: `${(expenses / scale) * 100}%` }}
-              />
-              <span
-                className="absolute inset-y-0 transition-[width,left] duration-300 motion-reduce:transition-none"
-                style={{
-                  left: `${(expenses / scale) * 100}%`,
-                  width: `${((r.remaining ?? 0) / scale) * 100}%`,
-                  background:
-                    "repeating-linear-gradient(-45deg,#8ca64d 0 5px,#253020 5px 10px)",
-                }}
-              />
-              <span
-                className="absolute inset-y-0 w-0.5 bg-paper"
-                style={{ left: `${(r.budget / scale) * 100}%` }}
-              />
-            </div>
-            <p className="mt-2 text-xs text-steel-300">
-              Plein : dépenses · hachures : reste à faire · repère : budget à
-              date
-            </p>
+        <section
+          id={id("result")}
+          className={styles.outcome}
+          aria-label="Résultat de la simulation"
+        >
+          <div className={styles.outputRegister}>
+            <span>PRÉVISION / COÛT FINAL</span>
+            <span>k€ HT</span>
           </div>
-          <table className="data-grid mt-6 w-full">
-            <caption className="sr-only">
-              Résultats calculés et formules ; montants en milliers d’euros
-            </caption>
-            <tbody>
-              {results.map(([label, value, formula]) => (
-                <tr key={label}>
-                  <th
-                    scope="row"
-                    className="py-3 text-left text-xs font-normal text-steel-300"
-                  >
-                    {label}
-                    <span className="mt-1 block text-[0.625rem] text-steel-400">
-                      {formula}
-                    </span>
-                  </th>
-                  <td className="num !text-paper">{value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div
+            className={styles.mainMetric}
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <p style={{ color }}>
+              {r.forecast === null ? "À estimer" : fmt(r.forecast)}
+              <small>{r.forecast === null ? "" : "k€"}</small>
+            </p>
+            <span>
+              {r.variance === null
+                ? "La performance ne permet pas de projeter."
+                : positive
+                  ? "Dépassement prévisionnel"
+                  : r.variance < 0
+                    ? "Économie prévisionnelle"
+                    : "À la cible"}
+            </span>
+          </div>
+          <div className={styles.consequence} style={{ borderColor: color }}>
+            <span>ÉCART / BUDGET À DATE</span>
+            <strong style={{ color }}>
+              {r.variance === null
+                ? "Non calculable"
+                : `${signed(r.variance)} k€`}
+              <small>
+                {r.ratio === null
+                  ? "Ratio non calculable"
+                  : `${signed(r.ratio)} %`}
+              </small>
+            </strong>
+          </div>
+          <div className={styles.chart} aria-hidden="true">
+            <div className={styles.chartTop}>
+              <span>DÉCOMPOSITION DU COÛT</span>
+              <span>Échelle commune</span>
+            </div>
+            <div className={styles.chartArea}>
+              <div
+                className={styles.reference}
+                style={{ left: `${(r.budget / scale) * 100}%` }}
+              >
+                <span>BàD</span>
+              </div>
+              <div className={styles.costTrack}>
+                <span
+                  className={styles.spent}
+                  style={{ width: `${(expenses / scale) * 100}%` }}
+                />
+                <span
+                  className={styles.remaining}
+                  style={{
+                    width: `${((r.remaining ?? 0) / scale) * 100}%`,
+                    left: `${(expenses / scale) * 100}%`,
+                  }}
+                />
+              </div>
+              <div className={styles.chartAxis}>
+                <span>0</span>
+                <span>{fmt(scale, 0)} k€</span>
+              </div>
+            </div>
+            <div className={styles.legend}>
+              <span>
+                <i className={styles.spentKey} />
+                Dépensé <strong>{fmt(expenses)} k€</strong>
+              </span>
+              <span>
+                <i className={styles.remainingKey} />
+                Reste à faire{" "}
+                <strong>
+                  {r.remaining === null
+                    ? "À estimer"
+                    : `${fmt(r.remaining)} k€`}
+                </strong>
+              </span>
+            </div>
+          </div>
           {r.forecast === null && (
-            <p role="status" className="mt-4 text-sm text-amber">
-              Sans dépenses ou sans valeur acquise, la performance ne permet pas
-              d’estimer le travail restant. Choisissez « Saisie métier » ou « Au
-              budget ».
+            <p role="status" className={styles.notice}>
+              Sans dépenses ou sans valeur acquise, choisissez « Saisie métier »
+              ou « Au budget » pour estimer le travail restant.
             </p>
           )}
           {r.budget === 0 && (
-            <p className="mt-4 text-sm text-amber">
+            <p className={styles.notice}>
               Budget à date nul : l’écart relatif ne peut pas être calculé.
             </p>
           )}
-          <p className="mt-5 border-t border-white/10 pt-4 text-xs leading-relaxed text-steel-300">
+          <details className={styles.formulas}>
+            <summary>
+              Examiner les calculs <span aria-hidden="true">+</span>
+            </summary>
+            <table>
+              <caption className="sr-only">
+                Résultats calculés et formules ; montants en milliers d’euros
+              </caption>
+              <tbody>
+                {results.map(([label, value, formula]) => (
+                  <tr key={label}>
+                    <th scope="row">
+                      {label}
+                      <small>{formula}</small>
+                    </th>
+                    <td>{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </details>
+          <p className={styles.disclaimer}>
             Ce modèle illustre la méthode, sans reproduire le moteur du
-            logiciel. Montants en k€ ; calculs sans arrondi intermédiaire,
-            affichage à une décimale. Les seuils de risque dépendent du contexte
-            du projet.
+            logiciel. Calculs sans arrondi intermédiaire ; affichage à une
+            décimale. Le contexte du projet détermine les décisions à prendre.
           </p>
-        </div>
+        </section>
       </div>
     </div>
   );

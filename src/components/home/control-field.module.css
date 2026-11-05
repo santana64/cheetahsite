@@ -1,0 +1,571 @@
+.hero {
+  --field-accent: #cdf564;
+  --motion-field: var(--dur-field);
+  position: relative;
+  padding-top: 5.8rem;
+  overflow: clip;
+  background: #06080a;
+  border-bottom: 1px solid #35424a80;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#8295a707 1px, transparent 1px),
+    linear-gradient(90deg, #8295a707 1px, transparent 1px);
+  background-size: 96px 96px;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent 20%, #000);
+}
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #8b9caa26;
+  font:
+    0.6rem var(--font-mono),
+    monospace;
+  letter-spacing: 0.12em;
+  color: #9daaba;
+  position: relative;
+}
+.masthead > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.masthead i,
+.heroFooter i {
+  width: 5px;
+  height: 5px;
+  background: var(--field-accent);
+  display: inline-block;
+  border-radius: 50%;
+}
+.composition {
+  display: grid;
+  grid-template-columns: 1fr 1.12fr;
+  gap: 0.5rem;
+  align-items: center;
+  position: relative;
+  min-height: 660px;
+}
+.editorial {
+  position: relative;
+  z-index: 2;
+  padding: 3rem 0 3.5rem;
+  pointer-events: none;
+}
+.editorial a {
+  pointer-events: auto;
+}
+.eyebrow {
+  font:
+    0.65rem var(--font-mono),
+    monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #a8b7c5;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: #a8b7c5;
+}
+.editorial h1 {
+  font:
+    800 clamp(3.35rem, 4.9vw, 5rem) / 0.98 var(--font-display),
+    sans-serif;
+  letter-spacing: -0.055em;
+  margin: 1.75rem -4.5rem 1.65rem 0;
+  position: relative;
+}
+.editorial h1 em {
+  color: #cdf564;
+  font-style: normal;
+}
+.lastLine {
+  white-space: nowrap;
+}
+.lede {
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  line-height: 1.6;
+  color: #c6d0da;
+  max-width: 29rem;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.2rem;
+  margin-top: 1.8rem;
+}
+.actions > a:first-child {
+  font-size: 0.8rem;
+  padding: 0.85rem 1rem;
+  gap: 1.25rem;
+}
+.actions > a:last-child {
+  font-size: 0.75rem;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.context {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  margin-top: 2.3rem;
+  color: #9daaba;
+  font:
+    0.65rem/1.65 var(--font-mono),
+    monospace;
+}
+.context > span {
+  color: var(--field-accent);
+  font-size: 1.2rem;
+}
+.instrument {
+  position: relative;
+  min-width: 0;
+  padding: 1.5rem 0 1.5rem 2rem;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.sceneHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  color: #9daaba;
+  font:
+    0.52rem var(--font-mono),
+    monospace;
+  letter-spacing: 0.08em;
+}
+.sceneHeader > span:last-child {
+  font:
+    0.6rem var(--font-ui),
+    sans-serif;
+  letter-spacing: 0;
+  color: #b0bbc7;
+}
+.selectors {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 1rem;
+  border-block: 1px solid #8b9caa26;
+  position: relative;
+  z-index: 3;
+}
+.selectors button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 0.75rem;
+  min-height: 48px;
+  font:
+    0.75rem var(--font-mono),
+    monospace;
+  color: #a6b2c0;
+  position: relative;
+  transition:
+    color var(--dur-fast),
+    background var(--dur-fast);
+}
+.selectors button + button {
+  border-left: 1px solid #8b9caa26;
+}
+.selectors button span {
+  font-size: 0.55rem;
+  color: #9daaba;
+}
+.selectors button[aria-pressed="true"] {
+  color: var(--field-accent);
+  background: #ffffff03;
+}
+.selectors button[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--field-accent);
+}
+.selectors button:hover {
+  background: #ffffff07;
+  color: #eef2f6;
+}
+.field {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: -1.2rem -3rem -1rem -3.5rem;
+}
+.scene {
+  width: 100%;
+  height: auto;
+  max-height: 405px;
+  display: block;
+  overflow: visible;
+  transform: perspective(1000px) rotateX(var(--field-rx, 0deg))
+    rotateY(var(--field-ry, 0deg));
+  transition: transform 450ms var(--ease-cheetah);
+}
+.reference {
+  animation: fieldAssemble 900ms var(--ease-cheetah) both;
+}
+.geometry {
+  animation: fieldFocus var(--motion-field) var(--ease-cheetah) both;
+  transform-origin: 50% 55%;
+}
+.tick {
+  font:
+    11px var(--font-mono),
+    monospace;
+  letter-spacing: 0.08em;
+  fill: #9daaba;
+}
+.register {
+  font:
+    11px var(--font-mono),
+    monospace;
+  letter-spacing: 0.14em;
+  fill: #c6d0da;
+}
+.annotation {
+  font:
+    12px var(--font-mono),
+    monospace;
+  letter-spacing: 0.04em;
+}
+.documentVersion {
+  font:
+    500 19px var(--font-mono),
+    monospace;
+  letter-spacing: -0.05em;
+}
+.observation {
+  border-top: 1px solid #8b9caa26;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 0.6rem 1.5rem;
+  padding-top: 1rem;
+  position: relative;
+  z-index: 2;
+}
+.primaryMetric,
+.secondaryMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.metricLabel {
+  color: #b3bfcb;
+  font:
+    0.6rem var(--font-mono),
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+.metric {
+  font:
+    500 clamp(2.2rem, 3.3vw, 3.4rem) / 1.1 var(--font-mono),
+    monospace;
+  color: var(--field-accent);
+  letter-spacing: -0.07em;
+}
+.secondValue {
+  font:
+    400 clamp(1.7rem, 2.1vw, 2.25rem) / 1.2 var(--font-mono),
+    monospace;
+  color: #eef2f6;
+  letter-spacing: -0.05em;
+}
+.explanation {
+  grid-column: 1/-1;
+  color: #9daaba;
+  font-size: 0.65rem;
+  line-height: 1.5;
+  min-height: 2em;
+}
+.instrumentFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid #8b9caa26;
+  font-size: 0.7rem;
+  color: #c6d0da;
+  align-items: center;
+}
+.instrumentFooter a {
+  min-height: 40px;
+  display: flex;
+  gap: 1.4rem;
+  align-items: center;
+  color: var(--field-accent);
+}
+.heroFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  border-top: 1px solid #8b9caa26;
+  padding: 1rem 0;
+  color: #9daaba;
+  font:
+    0.58rem var(--font-mono),
+    monospace;
+  position: relative;
+}
+.heroFooter > a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #c6d0da;
+}
+.heroFooter > span {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+}
+@keyframes fieldAssemble {
+  from {
+    transform: translateY(12px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes fieldFocus {
+  from {
+    transform: translateY(-14px) scale(0.97);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@media (min-width: 1550px) {
+  .composition {
+    min-height: 725px;
+  }
+  .field {
+    margin-inline: -4rem;
+  }
+  .scene {
+    max-height: 440px;
+  }
+  .editorial h1 {
+    font-size: 5.35rem;
+  }
+}
+@media (max-width: 1100px) {
+  .composition {
+    grid-template-columns: 1.05fr 1fr;
+    min-height: 600px;
+  }
+  .editorial h1 {
+    font-size: clamp(2.6rem, 4.8vw, 4.2rem);
+    margin-right: -2rem;
+  }
+  .instrument {
+    padding-left: 1rem;
+  }
+  .sceneHeader > span:first-child {
+    display: none;
+  }
+  .sceneHeader {
+    justify-content: flex-end;
+  }
+  .field {
+    margin-inline: -1.5rem;
+  }
+  .context {
+    margin-top: 1.5rem;
+  }
+  .heroFooter > span {
+    display: none;
+  }
+}
+@media (max-width: 767px) {
+  .hero {
+    padding-top: 4.5rem;
+  }
+  .masthead {
+    padding: 1rem 0;
+    font-size: 0.48rem;
+    letter-spacing: 0.07em;
+  }
+  .masthead > span:last-child {
+    font-size: 0;
+    gap: 0;
+  }
+  .masthead i {
+    margin-right: 0.6rem;
+  }
+  .composition {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 0;
+  }
+  .editorial {
+    width: 100%;
+    padding: 2rem 0 1rem;
+  }
+  .eyebrow {
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+  }
+  .editorial h1 {
+    font-size: clamp(2.7rem, 10.9vw, 4.5rem);
+    letter-spacing: -0.055em;
+    margin: 1rem 0;
+    line-height: 1;
+  }
+  .lede {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 35ch;
+  }
+  .desktopBreak {
+    display: none;
+  }
+  .actions {
+    margin-top: 1.2rem;
+    gap: 0.35rem 1.5rem;
+  }
+  .actions > a:first-child {
+    font-size: 0.72rem;
+    padding: 0.75rem 0.9rem;
+    min-height: 44px;
+  }
+  .actions > a:last-child {
+    font-size: 0.65rem;
+  }
+  .context {
+    display: none;
+  }
+  .instrument {
+    padding: 0.5rem 0 1.2rem;
+    width: 100%;
+  }
+  .sceneHeader {
+    justify-content: flex-end;
+  }
+  .sceneHeader > span:last-child {
+    font-size: 0.55rem;
+  }
+  .selectors {
+    margin-top: 0.65rem;
+  }
+  .selectors button {
+    font-size: 0.7rem;
+    padding: 0.7rem;
+  }
+  .field {
+    margin: -0.8rem -1rem -1rem;
+  }
+  .scene {
+    max-height: 285px;
+  }
+  .observation {
+    padding-top: 0.85rem;
+    gap: 0.6rem 1rem;
+  }
+  .metric {
+    font-size: 2.45rem;
+  }
+  .secondValue {
+    font-size: 1.8rem;
+  }
+  .metricLabel {
+    font-size: 0.53rem;
+  }
+  .explanation {
+    font-size: 0.62rem;
+    min-height: 2em;
+  }
+  .instrumentFooter {
+    font-size: 0.65rem;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+  }
+  .instrumentFooter p {
+    max-width: 26ch;
+  }
+  .heroFooter {
+    padding: 0.4rem 0;
+    font-size: 0.5rem;
+  }
+  .heroFooter > a {
+    min-height: 44px;
+    gap: 0.75rem;
+  }
+}
+@media (max-width: 359px) {
+  .editorial h1 {
+    font-size: 2.5rem;
+  }
+  .actions {
+    gap: 0;
+  }
+  .actions > a:last-child {
+    min-height: 38px;
+  }
+  .scene {
+    max-height: 235px;
+  }
+  .metric {
+    font-size: 2.15rem;
+  }
+  .secondValue {
+    font-size: 1.6rem;
+  }
+  .instrumentFooter {
+    font-size: 0.6rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene {
+    transform: none;
+    transition: none;
+  }
+  .geometry,
+  .reference {
+    animation: none;
+  }
+  .selectors button {
+    transition: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .tick {
+    font-size: 13px;
+  }
+  .annotation {
+    font-size: 14px;
+  }
+  .lastLine {
+    white-space: normal;
+  }
+}

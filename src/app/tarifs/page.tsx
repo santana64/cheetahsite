@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import styles from '@/components/ui.module.css';
 import { pageMetadata } from '@/lib/metadata';
 import Link from 'next/link';
 import { CtaBand, PageHero } from '@/components/ui';
@@ -71,6 +72,8 @@ export default function Page() {
   return (
     <>
       <PageHero
+        code="04 / TARIFS"
+        entries={[{"label": "Essentiel · HT", "value": "199 € / mois"}, {"label": "Professionnel · HT", "value": "599 € / mois"}, {"label": "Entreprise", "value": "Sur devis"}]}
         fil={[{ label: 'Accueil', href: '/' }, { label: 'Tarifs' }]}
         eyebrow="Tarifs"
         titre="Un abonnement, une mise en service. Les deux sont réels."
@@ -78,28 +81,24 @@ export default function Page() {
       />
 
       <section className="border-b border-white/[0.07] bg-ink-900 py-20 md:py-28">
-        <div className="shell grid gap-px lg:grid-cols-3">
+        <div className={`shell ${styles.priceGrid}`}>
           {OFFRES.map((o) => (
             <div
               key={o.nom}
-              className={`reveal relative flex flex-col border-t py-9 lg:px-8 lg:first:pl-0 lg:last:pr-0 ${
+              className={`reveal ${styles.pricePlan} ${
                 o.phare ? 'border-volt' : 'border-white/[0.08]'
               }`}
             >
-              {o.phare && (
-                <span className="absolute -top-px left-0 font-mono text-[0.625rem] uppercase tracking-[0.18em] text-volt lg:left-8">
-                  <span className="block pt-3">Multi-projets</span>
-                </span>
-              )}
-              <h2 className={`display-sm ${o.phare ? 'mt-8' : ''} text-paper`}>{o.nom}</h2>
+              <p className={styles.planFlag}>{o.phare ? 'Multi-projets' : o.nom === 'Essentiel' ? 'Premier périmètre' : 'Cadre sur mesure'}</p>
+              <h2 className="display-sm text-paper">{o.nom}</h2>
               <p className="mt-5 flex items-baseline gap-2">
                 <span className="num text-4xl font-semibold text-paper">{o.prix}</span>
-                {o.periode && <span className="text-sm text-steel-400">{o.periode}</span>}
+                {o.periode && <span className="text-sm text-steel-400">HT / mois</span>}
               </p>
-              <p className="mt-2 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-steel-500">
+              <p className={styles.setup}>
                 {o.setup}
               </p>
-              <p className="body-copy mt-6 text-sm">{o.pour}</p>
+              <p className={`body-copy ${styles.planAudience}`}>{o.pour}</p>
               <ul className="mt-7 flex-1 space-y-2.5 border-t border-white/[0.08] pt-6">
                 {o.inclus.map((f) => (
                   <li key={f} className="flex gap-3 text-sm text-steel-200">

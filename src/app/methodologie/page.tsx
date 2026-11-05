@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import styles from '@/components/ui.module.css';
 import { pageMetadata } from '@/lib/metadata';
 import ForecastSimulator from '@/components/ForecastSimulator';
 import { CtaBand, PageHero } from '@/components/ui';
@@ -12,6 +13,8 @@ export default function Page() {
   return (
     <>
       <PageHero
+        code="02 / MÉTHODE"
+        entries={[{"label": "Référence", "value": "Budget initial → budget à date"}, {"label": "Mesure", "value": "Dépenses ≠ avancement"}, {"label": "Projection", "value": "Dépensé + reste à faire"}]}
         fil={[{ label: 'Accueil', href: '/' }, { label: 'Méthode' }]}
         eyebrow="Intelligence métier"
         titre="Un coût final ne se constate pas. Il se recalcule."
@@ -20,22 +23,22 @@ export default function Page() {
 
       <section className="border-b border-white/[0.07] bg-ink-900 py-20 md:py-28">
         <div className="shell">
-          <ol className="space-y-px">
+          <ol className={styles.methodChain}>
             {METHODE_ETAPES.map((e) => (
-              <li key={e.n} className="reveal grid gap-6 border-t border-white/[0.08] py-10 md:grid-cols-12">
-                <div className="md:col-span-2">
+              <li key={e.n} className={`reveal ${styles.methodStep}`}>
+                <div className={styles.stepNumber}>
                   <span className="num text-sm text-volt">{e.n}</span>
                 </div>
-                <div className="md:col-span-3">
+                <div className={styles.stepTitle}>
                   <h2 className="display-sm text-paper">{e.titre}</h2>
                   <p className="mt-1.5 font-mono text-[0.625rem] uppercase tracking-[0.16em] text-steel-500">
                     {e.sous}
                   </p>
                 </div>
-                <div className="md:col-span-5">
+                <div className={styles.stepText}>
                   <p className="body-copy max-w-prose">{e.texte}</p>
                 </div>
-                <div className="flex flex-wrap content-start gap-1.5 md:col-span-2 md:justify-end">
+                <div className={styles.stepFormula}>
                   {e.colonnes.map((c) => (
                     <span
                       key={c}

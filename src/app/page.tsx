@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ForecastSimulator from "@/components/ForecastSimulator";
-import CostGrid from "@/components/product/CostGrid";
+import ProductViewport from "@/components/product/ProductViewport";
+import styles from "@/components/home/home.module.css";
 import Stage from "@/components/home/Stage";
 import VarianceReading from "@/components/home/VarianceReading";
 import { CtaBand, SectionHead } from "@/components/ui";
@@ -52,58 +53,72 @@ export default function Accueil() {
         className="scroll-mt-24 border-b border-white/[0.07] bg-ink-900 py-20 md:py-28"
       >
         <div className="shell">
-          <SectionHead
-            acte="Trois dimensions, une lecture du projet"
-            titre={
-              <>
-                Le coût d’une décision.
-                <br />
-                Le temps de la prendre.
-                <br />
-                La preuve de son exécution.
-              </>
-            }
-            chapeau="Explorez chaque module, son périmètre et les éléments qui attestent ses capacités. Les fonctions décrites et les démonstrations sont identifiées séparément."
-          />
-          <div className="module-editorial">
+          <div className={styles.moduleHeading}>
+            <p className="eyebrow">Un même projet</p>
+            <h2 className="display-lg">
+              Trois dimensions.
+              <br />
+              Aucun angle mort.
+            </h2>
+            <p className="body-copy">
+              L’argent, le temps, la preuve : trois lectures complémentaires,
+              avec un périmètre et des capacités documentés.
+            </p>
+          </div>
+          <div className={styles.moduleRows}>
             {MODULES.map((m, i) => (
-              <Link key={m.slug} href={`/cheetah-${m.slug}/`}>
-                <span className="num text-xs" style={{ color: m.accentHex }}>
-                  0{i + 1} / {m.dimension}
+              <Link
+                key={m.slug}
+                href={`/cheetah-${m.slug}/`}
+                style={
+                  { "--module-accent": m.accentHex } as React.CSSProperties
+                }
+              >
+                <span className={styles.moduleCode}>
+                  0{i + 1} / {m.slug.toUpperCase()}
                 </span>
                 <h3>{m.nom}</h3>
                 <p>{m.promesse}</p>
-                <span className="module-link">
-                  Explorer le module{" "}
-                  <span aria-hidden="true" style={{ color: m.accentHex }}>
-                    ↗
-                  </span>
+                <svg viewBox="0 0 100 52" aria-hidden="true">
+                  {i === 0 ? (
+                    <>
+                      <path d="M4 42H96M8 32L30 24L52 28L74 9L94 5" />
+                      <path
+                        d="M8 38L30 30L52 23L74 17L94 12"
+                        strokeDasharray="3 4"
+                      />
+                    </>
+                  ) : i === 1 ? (
+                    <>
+                      <path d="M8 9H38V25H67V42H94M8 6V12M38 22V28M67 39V45" />
+                      <path
+                        d="M8 18H35M41 33H64M70 49H94"
+                        strokeDasharray="3 3"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <path d="M8 16H31V43H8ZM39 9H62V36H39ZM70 2H93V29H70Z" />
+                      <path d="M31 29H39M62 22H70" />
+                    </>
+                  )}
+                </svg>
+                <span className={styles.moduleArrow} aria-hidden="true">
+                  ↗
                 </span>
               </Link>
             ))}
           </div>
         </div>
       </section>
-      <section className="bg-bone py-16 text-ink-900 md:py-20">
-        <div className="shell grid items-start gap-8 md:grid-cols-2 md:gap-16">
-          <div>
-            <p className="eyebrow !text-ink-500">Cheetah Cost</p>
-            <h2 className="display-md mt-5">Une référence.<br />Une mesure.<br />Une décision.</h2>
-          </div>
-          <div>
-            <p className="text-lg leading-relaxed text-ink-700">Budget à date, avancement physique, coût prévisionnel : lisez le projet dans une seule grille.</p>
-            <p className="mt-4 text-sm leading-relaxed text-ink-500">La présentation ci-dessous reprend les données du logiciel dans une interface lisible. Les différences avec le récapitulatif source sont signalées.</p>
-            <Link href="/cheetah-cost/" className="btn btn-dark mt-6">Découvrir Cheetah Cost ↗</Link>
-          </div>
-        </div>
-      </section>
       <section
         id="produit"
-        className="scroll-mt-24 border-b border-white/[0.07] py-20 md:py-28"
+        className="scroll-mt-24 bg-bone py-20 text-ink-900 md:py-28"
       >
         <div className="shell">
           <SectionHead
-            acte="Lecture de l’arrêté"
+            acte="Lecture du produit"
+            tone="light"
             titre={
               <>
                 De la ligne budgétaire
@@ -113,27 +128,7 @@ export default function Accueil() {
             chapeau="Reconstitution des colonnes de la capture Cost, dans l’habillage du site. Montants en k€. La preuve reste l’image d’origine, pas cette présentation."
           />
           <div className="mt-12">
-            <CostGrid />
-          </div>
-          <div className="mt-12 grid gap-8 md:grid-cols-2">
-            <div className="border-t border-drift/40 pt-6">
-              <p className="num text-xs text-drift">LB02 / ÉCART 9 → 29 k€</p>
-              <h3 className="display-sm mt-4">+20 k€ de dégradation.</h3>
-              <p className="body-copy mt-3 text-sm">
-                L’évolution de l’écart se mesure en milliers d’euros. La ligne
-                n’est avancée qu’à 25 % : la tendance mérite une investigation
-                avant la livraison.
-              </p>
-            </div>
-            <div className="border-t border-volt/40 pt-6">
-              <p className="num text-xs text-volt">LB04 / ÉCART −40 k€</p>
-              <h3 className="display-sm mt-4">Une économie à expliquer.</h3>
-              <p className="body-copy mt-3 text-sm">
-                Sans dépense ni avancement enregistrés, ce montant ne prouve pas
-                un gain de performance. Vérifiez le périmètre et la qualité de
-                la prévision.
-              </p>
-            </div>
+            <ProductViewport />
           </div>
         </div>
       </section>

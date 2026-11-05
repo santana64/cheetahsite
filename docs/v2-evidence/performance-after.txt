@@ -1,0 +1,24 @@
+
+> cheetahsoft-site-vitrine@1.0.0 perf
+> node scripts/perf.mjs
+
+Mesure de laboratoire — localhost, Chromium headless, WebGL logiciel.
+
+/
+  FCP 232 ms · LCP 232 ms · CLS 0.0000
+  transfert 895 ko (js 406 ko · css 96 ko · images 5 ko · polices 143 ko)
+  cadence requestAnimationFrame, accueil SVG : ~60 images/s
+  cadence requestAnimationFrame après défilement : ~61 images/s
+
+/cheetah-cost/
+  FCP 128 ms · LCP 128 ms · CLS 0.0000
+  transfert 1054 ko (js 429 ko · css 96 ko · images 5 ko · polices 166 ko)
+
+/methodologie/
+  FCP 104 ms · LCP 104 ms · CLS 0.0000
+  transfert 837 ko (js 405 ko · css 96 ko · images 5 ko · polices 143 ko)
+
+/tarifs/
+  FCP 112 ms · LCP 112 ms · CLS 0.0000
+  transfert 802 ko (js 405 ko · css 44 ko · images 5 ko · polices 166 ko)
+

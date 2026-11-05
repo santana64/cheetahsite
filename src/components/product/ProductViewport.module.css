@@ -1,0 +1,457 @@
+.viewport {
+  border: 1px solid #33404e;
+  background: #0a0e13;
+  color: #eef2f6;
+  position: relative;
+}
+.register {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #29333f;
+  font:
+    0.6rem var(--font-mono),
+    monospace;
+  letter-spacing: 0.12em;
+  color: #aab6c4;
+}
+.signal {
+  color: #cdf564;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.signal::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: #cdf564;
+}
+.measureNav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid #29333f;
+}
+.measureNav button {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem;
+  min-height: 64px;
+  border-right: 1px solid #29333f;
+  color: #aab6c4;
+  font-size: 0.8rem;
+  text-align: left;
+  position: relative;
+  transition:
+    background 220ms,
+    color 220ms;
+}
+.measureNav button:last-child {
+  border-right: 0;
+}
+.measureNav button > span {
+  font:
+    0.6rem var(--font-mono),
+    monospace;
+}
+.measureNav button[aria-pressed="true"] {
+  background: #cdf5640b;
+  color: #eef2f6;
+  box-shadow: inset 0 -2px #cdf564;
+}
+.measureNav button[aria-pressed="true"] > span {
+  color: #cdf564;
+}
+.measureNav button:hover {
+  background: #ffffff06;
+}
+.instrument {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(240px, 1fr);
+}
+.ledger {
+  min-width: 0;
+  border-right: 1px solid #29333f;
+  background: linear-gradient(135deg, #16202b55, transparent 65%);
+}
+.ledgerHeading,
+.ledgerFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  font:
+    0.6rem var(--font-mono),
+    monospace;
+  color: #aab6c4;
+  letter-spacing: 0.08em;
+}
+.ledgerHeading > span:first-child {
+  color: #eef2f6;
+}
+.tableScroll {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+}
+.table th,
+.table td {
+  padding: 1rem 0.85rem;
+  text-align: right;
+  border-block: 1px solid #25303a;
+  font-size: 0.85rem;
+}
+.table thead th {
+  color: #aab6c4;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.table th:first-child {
+  text-align: left;
+  padding-left: 1.5rem;
+  width: 30%;
+}
+.table td:last-child,
+.table th:last-child {
+  padding-right: 1.5rem;
+}
+.table tbody th {
+  font-weight: 400;
+}
+.table tbody th span {
+  color: #aab6c4;
+  font-size: 0.65rem;
+}
+.table tbody th small {
+  display: block;
+  color: #eef2f6;
+  font-size: 0.7rem;
+  margin-top: 0.3rem;
+}
+.focusRow {
+  background: #cdf56407;
+}
+.focusRow th:first-child {
+  border-left: 2px solid #cdf564;
+}
+.table .focusColumn {
+  background: #cdf56408;
+  color: #cdf564;
+  font-weight: 500;
+}
+.table td[data-unfavorable="true"] {
+  color: #ff9793;
+}
+.ledgerFooter {
+  font-size: 0.5rem;
+  padding-block: 1rem;
+}
+.ledgerFooter > span:first-child {
+  color: #cdf564;
+}
+.reading {
+  padding: 2rem;
+  min-width: 0;
+  position: relative;
+}
+.code {
+  font:
+    0.6rem var(--font-mono),
+    monospace;
+  letter-spacing: 0.12em;
+  color: #aab6c4;
+}
+.readout {
+  padding: 1.7rem 0 1.6rem;
+  border-bottom: 1px solid #29333f;
+  margin-bottom: 1.5rem;
+}
+.readout > span {
+  font:
+    500 clamp(2.5rem, 3.5vw, 3.8rem) / 1 var(--font-mono),
+    monospace;
+  letter-spacing: -0.065em;
+  color: #cdf564;
+  white-space: nowrap;
+}
+.readout small {
+  display: block;
+  color: #aab6c4;
+  font-size: 0.7rem;
+  margin-top: 0.8rem;
+}
+.reading h3 {
+  font:
+    600 clamp(1.4rem, 2vw, 1.9rem) / 1.15 var(--font-display),
+    sans-serif;
+  letter-spacing: -0.025em;
+  max-width: 17ch;
+}
+.explanation {
+  font-size: 0.8rem;
+  color: #bac5d2;
+  line-height: 1.7;
+  margin-top: 1rem;
+  min-height: 6.8em;
+}
+.sourceCase {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-top: 1px solid #29333f;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+}
+.sourceCase span {
+  font:
+    0.5rem/1.5 var(--font-mono),
+    monospace;
+  letter-spacing: 0.08em;
+  color: #aab6c4;
+}
+.sourceCase strong {
+  font:
+    0.7rem var(--font-mono),
+    monospace;
+  font-weight: 400;
+  color: #eef2f6;
+}
+.sourceNote {
+  display: flex;
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  background: #f2a93b08;
+  border-top: 1px solid #f2a93b30;
+  color: #c6cdd5;
+  font-size: 0.7rem;
+  line-height: 1.7;
+}
+.sourceNote > span {
+  color: #f2a93b;
+  font:
+    500 0.75rem var(--font-mono),
+    monospace;
+  border: 1px solid #f2a93b70;
+  align-self: flex-start;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 18px;
+  flex-shrink: 0;
+}
+.sourceNote strong {
+  color: #eef2f6;
+  font-weight: 500;
+}
+.evidence {
+  padding: 0 1.5rem;
+  border-top: 1px solid #29333f;
+  color: #aab6c4;
+  font-size: 0.7rem;
+  line-height: 1.7;
+}
+.evidence summary {
+  cursor: pointer;
+  min-height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+  font-family: var(--font-mono), monospace;
+}
+.evidence summary::-webkit-details-marker {
+  display: none;
+}
+.evidence summary span {
+  font-size: 1.1rem;
+  color: #cdf564;
+}
+.evidence[open] summary span {
+  transform: rotate(45deg);
+}
+.evidence p {
+  max-width: 80ch;
+  padding-top: 0.2rem;
+}
+.evidence a {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 48px;
+  color: #eef2f6;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (max-width: 950px) {
+  .instrument {
+    grid-template-columns: 1.4fr 1fr;
+  }
+  .reading {
+    padding: 1.5rem;
+  }
+  .measureNav button {
+    padding: 1rem;
+    font-size: 0.7rem;
+    gap: 0.5rem;
+  }
+  .readout > span {
+    font-size: 2.6rem;
+  }
+  .table th,
+  .table td {
+    padding: 1rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  .table th:first-child {
+    padding-left: 1rem;
+  }
+  .table td:last-child,
+  .table th:last-child {
+    padding-right: 1rem;
+  }
+  .ledgerHeading,
+  .ledgerFooter {
+    padding-inline: 1rem;
+  }
+}
+@media (max-width: 700px) {
+  .register {
+    padding: 1rem;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .register > span:nth-child(2) {
+    order: 3;
+    flex-basis: 100%;
+    font-size: 0.5rem;
+  }
+  .measureNav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .measureNav button {
+    min-height: 58px;
+    border-bottom: 1px solid #29333f;
+  }
+  .measureNav button:nth-child(2) {
+    border-right: 0;
+  }
+  .instrument {
+    display: flex;
+    flex-direction: column;
+  }
+  .reading {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    order: -1;
+    padding: 1.25rem;
+    border-bottom: 1px solid #29333f;
+  }
+  .code {
+    grid-column: 1/-1;
+  }
+  .readout {
+    margin: 0;
+    padding: 0.5rem 0;
+    border: 0;
+    align-self: center;
+  }
+  .readout > span {
+    font-size: clamp(2rem, 7vw, 2.8rem);
+  }
+  .readout small {
+    font-size: 0.6rem;
+    max-width: 16ch;
+    line-height: 1.5;
+  }
+  .reading h3 {
+    align-self: center;
+    font-size: 1.3rem;
+  }
+  .explanation {
+    grid-column: 1/-1;
+    min-height: 0;
+    margin: 0;
+  }
+  .sourceCase {
+    display: none;
+  }
+  .ledger {
+    border-right: 0;
+  }
+  .table thead th {
+    font-size: 0.5rem;
+  }
+  .table th,
+  .table td {
+    font-size: 0.75rem;
+  }
+  .table tbody th small {
+    font-size: 0.6rem;
+  }
+  .ledgerFooter {
+    font-size: 0.47rem;
+  }
+  .sourceNote {
+    padding: 1rem;
+    font-size: 0.65rem;
+    gap: 0.65rem;
+  }
+  .evidence {
+    padding-inline: 1rem;
+    font-size: 0.65rem;
+  }
+  .ledgerHeading {
+    padding-block: 1rem;
+  }
+  .table th:first-child {
+    width: 27%;
+  }
+}
+@media (max-width: 359px) {
+  .reading {
+    gap: 0.8rem;
+    padding: 1rem;
+  }
+  .readout > span {
+    font-size: 1.8rem;
+  }
+  .reading h3 {
+    font-size: 1.1rem;
+  }
+  .measureNav button {
+    padding: 0.8rem 0.7rem;
+    font-size: 0.65rem;
+  }
+  .table th,
+  .table td {
+    padding: 0.85rem 0.3rem;
+  }
+  .table th:first-child {
+    padding-left: 0.7rem;
+  }
+  .table td:last-child,
+  .table th:last-child {
+    padding-right: 0.7rem;
+  }
+  .ledgerFooter > span:last-child {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .measureNav button {
+    transition: none;
+  }
+}

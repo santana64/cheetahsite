@@ -260,6 +260,7 @@ for (const v of LARGEURS) {
   await slider.press('Home');
   for (let i = 0; i < 5; i++) await slider.press('ArrowRight');
   try { await page.waitForFunction(() => document.querySelector('.reading-bars')?.textContent.includes('1 200'), { timeout: 3000 }); } catch { note('lecture : coût prévisionnel à 35 % incorrect'); }
+  await page.getByText('Comparer les montants', { exact: false }).click();
   const bars = await page.locator('.reading-track > span').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().width));
   if (!(bars[2] > bars[0] && bars[0] > bars[1])) note('lecture : les montants ne partagent pas une échelle cohérente');
   await ctx.close();

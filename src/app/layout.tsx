@@ -8,14 +8,14 @@ import ScrollReveal from '@/components/ScrollReveal';
 
 // Bundled OFL fonts: reproducible builds without third-party font requests.
 const display = localFont({
-  src: '../../public/fonts/Archivo-Variable.woff2',
+  src: '../../public/fonts/Archivo-Display.woff2',
   variable: '--font-display',
   weight: '600 900',
   display: 'swap',
 });
 
 const ui = localFont({
-  src: '../../public/fonts/InterTight-Variable.woff2',
+  src: '../../public/fonts/InterTight-UI.woff2',
   variable: '--font-ui',
   weight: '400 700',
   display: 'swap',
@@ -23,9 +23,9 @@ const ui = localFont({
 
 const mono = localFont({
   src: [
-    { path: '../../public/fonts/IBMPlexMono-Regular.ttf', weight: '400' },
-    { path: '../../public/fonts/IBMPlexMono-Medium.ttf', weight: '500' },
-    { path: '../../public/fonts/IBMPlexMono-SemiBold.ttf', weight: '600' },
+    { path: '../../public/fonts/ControlFieldMono-Regular.woff2', weight: '400' },
+    { path: '../../public/fonts/ControlFieldMono-Medium.woff2', weight: '500' },
+    { path: '../../public/fonts/ControlFieldMono-SemiBold.woff2', weight: '600' },
   ],
   variable: '--font-mono',
   display: 'swap',

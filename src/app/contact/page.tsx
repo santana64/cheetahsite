@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import styles from '@/components/ui.module.css';
 import { pageMetadata } from '@/lib/metadata';
 import ContactForm from '@/components/ContactForm';
 import { PageHero } from '@/components/ui';
@@ -12,6 +13,8 @@ export default function Page() {
   return (
     <>
       <PageHero
+        code="06 / CONTACT"
+        entries={[{"label": "01 · Cadrage", "value": "30 minutes"}, {"label": "02 · Démonstration", "value": "Sur votre projet réel"}, {"label": "03 · Mise en service", "value": "Reprise, paramétrage, formation"}]}
         fil={[{ label: 'Accueil', href: '/' }, { label: 'Contact' }]}
         eyebrow="Prise de contact"
         titre={
@@ -26,11 +29,11 @@ export default function Page() {
 
       <section className="bg-ink-900 py-20 md:py-28">
         <div className="shell grid gap-14 lg:grid-cols-12 lg:gap-20">
-          <div className="lg:col-span-7">
+          <div className={`lg:col-span-7 ${styles.contactForm}`}><p className={styles.formLabel}>VOTRE DEMANDE / COORDONNÉES & CONTEXTE</p>
             <ContactForm />
           </div>
 
-          <aside className="lg:col-span-5">
+          <aside className={`lg:col-span-5 ${styles.contactAside}`}>
             <p className="eyebrow">Comment ça se passe</p>
             <ol className="mt-8 space-y-px">
               {PARCOURS.map((p) => (

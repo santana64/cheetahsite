@@ -1,208 +1,160 @@
 "use client";
-
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
+import ControlField, { type FieldMode } from "./ControlField";
+import styles from "./control-field.module.css";
 
 const DIMENSIONS = [
   {
+    mode: "cost",
     name: "COST",
-    label: "Maîtriser les coûts",
     color: "#cdf564",
     metric: "920 k€",
-    detail: "Coût final anticipé",
-    note: "800 k€ de budget à date · +120 k€ d’écart",
+    title: "L’écart devient une décision.",
+    label: "Coût final anticipé",
+    detail: "800 k€ de budget · 420 k€ dépensés + 500 k€ de RàF saisi",
+    secondary: "+120 k€",
+    secondaryLabel: "Écart au budget",
     path: "/cheetah-cost/",
+    link: "Explorer Cheetah Cost",
   },
   {
+    mode: "time",
     name: "TIME",
-    label: "Anticiper les délais",
     color: "#f2a93b",
     metric: "+12 j",
-    detail: "Décalage du jalon final",
-    note: "Un retard se propage aux tâches dépendantes.",
+    title: "Le retard révèle sa trajectoire.",
+    label: "Décalage du jalon",
+    detail: "Chaîne FS simplifiée · 8 + 20 + 8 jours · baseline de 24 jours",
+    secondary: "J+36",
+    secondaryLabel: "Fin prévisionnelle",
     path: "/cheetah-time/",
+    link: "Explorer Cheetah Time",
   },
   {
+    mode: "doc",
     name: "DOC",
-    label: "Relier les preuves",
     color: "#e9c9a0",
     metric: "V03",
-    detail: "Révision de référence",
-    note: "Une décision, une version, une pièce justificative.",
+    title: "Chaque décision retrouve sa preuve.",
+    label: "Version de référence",
+    detail: "Émission → revue → référence · une décision reliée à sa pièce",
+    secondary: "03",
+    secondaryLabel: "Versions illustrées",
     path: "/cheetah-doc/",
+    link: "Explorer Cheetah Doc",
   },
-];
-
+] as const;
 export default function Stage() {
   const [active, setActive] = useState(0);
-  const d = DIMENSIONS[active];
+  const dimension = DIMENSIONS[active];
   return (
     <section
-      className="precision-hero"
+      className={styles.hero}
       aria-label="Présentation de CheetahSoft"
+      style={{ "--field-accent": dimension.color } as CSSProperties}
     >
       <div className="shell">
-        <div className="hero-register">
-          <span>CHEETAHSOFT / CONTRÔLE DE PROJET</span>
-          <span>PRECISION IN MOTION — FR</span>
+        <div className={styles.masthead}>
+          <span>CHEETAHSOFT / INDUSTRIAL INTELLIGENCE</span>
+          <span>
+            THE CONTROL FIELD <i aria-hidden="true" /> CF—02
+          </span>
         </div>
-        <div className="hero-layout">
-          <div className="hero-editorial">
-            <p className="eyebrow">Logiciels pour les projets industriels</p>
+        <div className={styles.composition}>
+          <div className={styles.editorial}>
+            <p className={styles.eyebrow}>Anticiper. Mesurer. Décider.</p>
             <h1>
               La dérive se voit
               <br />
-              <em>avant</em> de se payer.
+              <span className={styles.lastLine}>
+                <em>avant</em> de se payer.
+              </span>
             </h1>
-            <p className="hero-lede">
-              Les coûts. Les délais. Les preuves.
-              <br />
-              Trois lectures pour décider pendant qu’il est encore temps.
+            <p className={styles.lede}>
+              Le contrôle des coûts, des délais
+              <br className={styles.desktopBreak} /> et des preuves de vos
+              projets industriels.
             </p>
-            <p className="hero-description">
-              CheetahSoft relie budget à date, avancement physique et coût
-              prévisionnel. Donnez une mesure à vos décisions de projet.
-            </p>
-            <div className="hero-actions">
+            <div className={styles.actions}>
               <Link href="/contact/" className="btn btn-primary">
                 Demander une démonstration <span aria-hidden="true">↗</span>
               </Link>
-              <Link href="#logiciels" className="hero-text-link">
+              <a href="#logiciels">
                 Explorer les logiciels <span aria-hidden="true">↓</span>
-              </Link>
+              </a>
+            </div>
+            <div className={styles.context}>
+              <span aria-hidden="true">↳</span>
+              <p>
+                Une référence pour mesurer.
+                <br />
+                Une projection pour agir.
+              </p>
             </div>
           </div>
-          <div
-            className="project-instrument"
-            style={{ "--instrument-accent": d.color } as React.CSSProperties}
-          >
-            <div className="instrument-heading">
-              <span>OBJET / PROJET</span>
-              <span>MODÈLE PÉDAGOGIQUE</span>
-            </div>
-            <svg
-              className="project-cutaway"
-              viewBox="0 0 620 480"
-              role="img"
-              aria-label={`Coupe technique des trois dimensions d’un projet. Dimension sélectionnée : ${d.name}.`}
-            >
-              <defs>
-                <pattern
-                  id="instrument-grid"
-                  width="28"
-                  height="16"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <path
-                    d="M28 0H0V16"
-                    fill="none"
-                    stroke="#9daaba"
-                    strokeWidth=".5"
-                    opacity=".2"
-                  />
-                </pattern>
-                <linearGradient id="instrument-plane" x2="1" y2="1">
-                  <stop stopColor="#263240" />
-                  <stop offset="1" stopColor="#0d1116" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M35 300L300 145L590 305L325 460Z"
-                fill="url(#instrument-grid)"
-                opacity=".65"
-              />
-              <path
-                d="M310 20V380M65 193L555 193"
-                stroke="#9daaba"
-                strokeDasharray="3 7"
-                opacity=".25"
-              />
-              {[2, 1, 0].map((i) => {
-                const y = 100 + i * 77;
-                const on = i === active;
-                return (
-                  <g
-                    key={i}
-                    className={`instrument-layer ${on ? "is-selected" : ""}`}
-                  >
-                    <path
-                      d={`M92 ${y + 75}L310 ${y - 45}L535 ${y + 75}L315 ${y + 196}Z`}
-                      fill="url(#instrument-plane)"
-                      stroke={on ? DIMENSIONS[i].color : "#44515f"}
-                      strokeWidth={on ? 1.6 : 0.8}
-                    />
-                    <path
-                      d={`M92 ${y + 75}V${y + 88}L315 ${y + 209}L535 ${y + 88}V${y + 75}M315 ${y + 196}V${y + 209}`}
-                      fill="none"
-                      stroke={on ? DIMENSIONS[i].color : "#44515f"}
-                      opacity=".65"
-                    />
-                    <path
-                      d={`M150 ${y + 75}L310 ${y - 12}L474 ${y + 75}L315 ${y + 163}Z M207 ${y + 75}L310 ${y + 20}L414 ${y + 75}L315 ${y + 131}Z`}
-                      fill="none"
-                      stroke={DIMENSIONS[i].color}
-                      opacity={on ? ".55" : ".12"}
-                    />
-                    <path
-                      d={`M150 ${y + 75}L230 ${y + 100}L290 ${y + 64}L355 ${y + 87}L420 ${y + 45}L473 ${y + 75}`}
-                      fill="none"
-                      stroke={DIMENSIONS[i].color}
-                      strokeWidth={on ? 3 : 1}
-                      opacity={on ? 1 : 0.25}
-                    />
-                    <circle
-                      cx="355"
-                      cy={y + 87}
-                      r={on ? 5 : 3}
-                      fill={DIMENSIONS[i].color}
-                    />
-                    <text
-                      x="102"
-                      y={y + 61}
-                      fill={on ? DIMENSIONS[i].color : "#9daaba"}
-                      fontSize="12"
-                      fontFamily="monospace"
-                    >
-                      0{i + 1} / {DIMENSIONS[i].name}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-            <div className="instrument-readout" aria-live="polite">
-              <div>
-                <span className="instrument-value">{d.metric}</span>
-                <span className="instrument-unit">{d.detail}</span>
-              </div>
-              <p>{d.note}</p>
+          <div className={styles.instrument}>
+            <div className={styles.sceneHeader}>
+              <span>INSTRUMENT DE LECTURE</span>
+              <span>Données fictives · modèle pédagogique</span>
             </div>
             <div
-              className="instrument-controls"
+              className={styles.selectors}
               aria-label="Choisir une dimension du projet"
             >
-              {DIMENSIONS.map((item, i) => (
+              {DIMENSIONS.map((d, i) => (
                 <button
-                  key={item.name}
+                  key={d.name}
                   type="button"
                   aria-pressed={active === i}
+                  aria-controls="field-observation"
                   onClick={() => setActive(i)}
                 >
                   <span>0{i + 1}</span>
-                  {item.name}
+                  {d.name}
                   <span aria-hidden="true">{active === i ? "↗" : "+"}</span>
                 </button>
               ))}
             </div>
-            <Link href={d.path} className="instrument-discover">
-              {d.label} <span aria-hidden="true">→</span>
-            </Link>
+            <ControlField mode={dimension.mode as FieldMode} />
+            <div
+              id="field-observation"
+              className={styles.observation}
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <div className={styles.primaryMetric}>
+                <span className={styles.metricLabel}>{dimension.label}</span>
+                <span className={`instrument-value ${styles.metric}`}>
+                  {dimension.metric}
+                </span>
+              </div>
+              <div className={styles.secondaryMetric}>
+                <span className={styles.metricLabel}>
+                  {dimension.secondaryLabel}
+                </span>
+                <span className={styles.secondValue}>
+                  {dimension.secondary}
+                </span>
+              </div>
+              <p className={styles.explanation}>{dimension.detail}</p>
+            </div>
+            <div className={styles.instrumentFooter}>
+              <p>{dimension.title}</p>
+              <Link href={dimension.path} aria-label={dimension.link}>
+                Explorer <span aria-hidden="true">↗</span>
+              </Link>
+            </div>
           </div>
         </div>
-        <div className="hero-bottom">
-          <span>Une référence. Une mesure. Une projection.</span>
+        <div className={styles.heroFooter}>
           <a href="#lecture">
-            Comprendre la dérive <span aria-hidden="true">↓</span>
+            <span aria-hidden="true">↓</span>Observer ce qui échappe aux
+            dépenses
           </a>
+          <span>
+            COST / TIME / DOC <i aria-hidden="true" /> UN MÊME PROJET
+          </span>
         </div>
       </div>
     </section>

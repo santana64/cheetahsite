@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import styles from './ui.module.css';
 import Link from 'next/link';
 import { CONTACT } from '@/content/cheetah';
 
@@ -34,11 +35,11 @@ const COLONNES: { titre: string; liens: { label: string; href: string }[] }[] = 
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-white/[0.07] bg-ink-900">
-      <div className="speedlines pointer-events-none absolute inset-0 opacity-40" aria-hidden="true" />
+    <footer className={`${styles.footer} relative border-t border-white/[0.07] bg-ink-900`}>
+      <div className={`shell ${styles.footerRibbon}`}><span>CHEETAHSOFT / CONTROL FIELD</span><span>COST · TIME · DOC</span></div>
 
-      <div className="shell relative grid gap-12 py-16 md:grid-cols-[1.4fr_repeat(3,1fr)] md:py-20">
-        <div>
+      <div className={`shell relative grid gap-12 py-16 md:grid-cols-[1.4fr_repeat(3,1fr)] md:py-20 ${styles.footerGrid}`}>
+        <div className={styles.footerBrand}>
           <div className="flex items-center gap-3">
             <span className="block h-10 w-10 overflow-hidden rounded-full bg-white ring-1 ring-white/15">
               <Image src="/logo-cheetah-128.webp" alt="" width={40} height={40} className="h-full w-full object-cover" />

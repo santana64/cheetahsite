@@ -1,3 +1,20 @@
+# Control Field V2 — novembre 2026
+
+Le contrat courant est `docs/creative-audit-v2.md` ; les revues sont dans `docs/creative-review-v2-cycle{1,2}.md`.
+
+- Signature : un référentiel spatial partagé et trois géométries2,5D réellement distinctes : trajectoires/volumes Cost, dépendances/jalon Time, versions/preuve Doc. Texte et CTA immédiatement disponibles. Aucune boucleGPU, transformations au pointeur seulement sur souris, animations supprimées en reduced-motion.
+- Hiérarchie : hero immersif, comparaison de trajectoires sur bone, rail de modules, lecture produit ciblée, laboratoire financier, méthode et conversion. Pas de capture brute sur l’accueil ; source complète accessible uniquement sur demande.
+- Motion :180ms pour feedback,360ms pour état,700ms pour champ, easingcubic-bezier(.22,1,.36,1). Aucune disparition de texte au scroll. Changements géométriques réversibles, labels/valeursDOM à jour sans attendre l’animation.
+- Styles : tokens/base dans globals.css ; expériences et secondaires dans leurs CSSmodules. ProductViewport recompose les valeurs source, sans se prétendre capture réelle. Les incertitudes800/798/−3 vs795/784/−11 restent affichées.
+- Typographie : mêmes dessins Archivo/InterTight/IBMPlexMono ; axes et poids variables limités aux usages, WOFF2 mono dérivé renomméControlFieldMono selonOFL. Source,licences,recettes etSHA256 dans public/fonts ; scripts/rebuild-fonts.py puis scripts/optimize-fonts.py pour reproduire les artefacts.
+- Mobile : sélection de dimension avant la scène, métriques voisines ; résultats du simulateur prioritaires ; Gantt compact avec inspecteur de tâche et grapheDoc vertical. Pas de réduction aveugle du desktop.
+- Les anciennes scènesWebGL sont conservées dans le dépôt mais ne sont plus montées par les pages. Elles n’apportaient plus de fonction aux nouveaux instruments.
+
+---
+
+## Historique des versions précédentes
+Les règlesV2 ci-dessus priment sur les descriptions antérieures.
+
 # Precision in motion — refonte du 5 novembre 2026
 
 Le contrat courant et le plan sont dans `docs/audit/2026-11-05-refonte.md`.

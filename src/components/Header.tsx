@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import styles from './ui.module.css';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -98,14 +99,14 @@ export function Header() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500 ${
+      className={`${styles.header} fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500 ${
         scrolled || mobile || openMenu
           ? 'border-b border-white/[0.07] bg-ink-900/85 backdrop-blur-xl'
           : 'border-b border-transparent bg-transparent'
       }`}
     >
       <div className="shell flex h-[4.5rem] items-center justify-between gap-6">
-        <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="CheetahSoft — accueil">
+        <Link href="/" className="group flex shrink-0 items-center gap-3">
           <span className="relative block h-9 w-9 overflow-hidden rounded-full bg-white ring-1 ring-white/15">
             <Image src="/logo-cheetah-128.webp" alt="" width={36} height={36} className="h-full w-full object-cover" priority />
           </span>
@@ -117,6 +118,7 @@ export function Header() {
               Cost · Time · Doc
             </span>
           </span>
+          <span className="sr-only"> — accueil</span>
         </Link>
 
         {/* Navigation desktop */}
@@ -158,7 +160,7 @@ export function Header() {
 
                 {openMenu === item.label && (
                   <div
-                    className="absolute left-0 top-full w-[22rem] pt-3"
+                    className={`${styles.dropdown} absolute left-0 top-full w-[22rem] pt-3`}
                     onMouseEnter={cancelClose}
                     onMouseLeave={scheduleClose}
                   >
@@ -235,7 +237,7 @@ export function Header() {
         <div
           id="menu-mobile"
           ref={mobilePanel}
-          className="h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-white/[0.07] bg-ink-900 lg:hidden"
+          className={`${styles.mobileMenu} h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-white/[0.07] bg-ink-900 lg:hidden`}
         >
           <nav aria-label="Navigation mobile" className="shell flex flex-col py-6">
             {NAV.map((item) => (

@@ -1,0 +1,11 @@
+1. soumission vide — 5 erreurs signalées, focus sur c-nom
+2. envoi accepté — requêtes reçues : 1, confirmation affichée : true
+   champs reçus : access_key, subject, from_name, replyto, email, organisation, fonction, contexte, message
+3. envoi refusé — erreur affichée : true, motif du prestataire relayé : true, saisie conservée : true, repli proposé : true
+4. champ-piège — hors tabulation et masqué aux lecteurs d’écran
+5. refus-200 — erreur affichée et saisie conservée
+5. json-invalide — erreur affichée et saisie conservée
+5. panne-reseau — erreur affichée et saisie conservée
+
+════════════════════════════════════════
+AUCUN PROBLEME DETECTE

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import styles from '@/components/ui.module.css';
 import { pageMetadata } from '@/lib/metadata';
 import Link from 'next/link';
 import { CtaBand, PageHero, ProofTag } from '@/components/ui';
@@ -12,6 +13,8 @@ export default function Page() {
   return (
     <>
       <PageHero
+        code="01 / PRODUITS"
+        entries={[{"label": "Cost", "value": "Budget & prévision", "href": "/cheetah-cost/"}, {"label": "Time", "value": "Délais & dépendances", "href": "/cheetah-time/"}, {"label": "Doc", "value": "Pièces & versions", "href": "/cheetah-doc/"}]}
         fil={[{ label: 'Accueil', href: '/' }, { label: 'Produits' }]}
         eyebrow="Vue d’ensemble"
         titre="Trois modules disponibles. Trois annoncés. On ne les mélange pas."
@@ -21,12 +24,12 @@ export default function Page() {
       <section className="border-b border-white/[0.07] bg-ink-900 py-20 md:py-28">
         <div className="shell">
           <p className="eyebrow mb-12">Disponibles</p>
-          <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-3">
+          <div className={styles.moduleGrid}>
             {MODULES.map((m) => (
               <Link
                 key={m.slug}
                 href={`/cheetah-${m.slug}/`}
-                className="group reveal flex flex-col border-t border-white/[0.08] py-9 transition-colors hover:bg-white/[0.02] lg:px-7 lg:first:pl-0 lg:last:pr-0"
+                className={`group reveal ${styles.modulePanel}`}
               >
                 <span
                   className="font-mono text-[0.625rem] uppercase tracking-[0.22em]"
@@ -34,6 +37,7 @@ export default function Page() {
                 >
                   {m.dimension}
                 </span>
+                <div className={styles.moduleGlyph} aria-hidden="true">{m.slug === 'cost' ? 'BI → BàD → CP' : m.slug === 'time' ? 'A ── B ── C' : 'V01 → V02 → VISA'}</div>
                 <h2 className="display-md mt-4 text-paper transition-colors group-hover:text-volt">
                   {m.nom}
                 </h2>

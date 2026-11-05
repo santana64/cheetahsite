@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import styles from '@/components/ui.module.css';
 import { pageMetadata } from '@/lib/metadata';
 import { CtaBand, PageHero } from '@/components/ui';
 import { ROADMAP } from '@/content/cheetah';
@@ -11,6 +12,8 @@ export default function Page() {
   return (
     <>
       <PageHero
+        code="05 / FEUILLE DE ROUTE"
+        entries={[{"label": "Report", "value": "En développement"}, {"label": "Risk", "value": "En développement"}, {"label": "Connect", "value": "En développement"}]}
         fil={[{ label: 'Accueil', href: '/' }, { label: 'Produits', href: '/solutions/' }, { label: 'Feuille de route' }]}
         eyebrow="En développement"
         titre="Trois modules annoncés. Aucun vendable aujourd’hui."
@@ -30,7 +33,7 @@ export default function Page() {
             </p>
           </div>
 
-          <ol className="space-y-px">
+          <ol className={styles.roadmapList}>
             {ROADMAP.map((r, i) => (
               <li key={r.nom} className="reveal grid gap-8 border-t border-white/[0.08] py-10 md:grid-cols-12">
                 <div className="md:col-span-1">

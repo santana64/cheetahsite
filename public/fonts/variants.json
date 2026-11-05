@@ -1,0 +1,73 @@
+{
+  "recipe_version": 1,
+  "unicode_ranges": [
+    "U+0000-024F",
+    "U+1E00-1EFF",
+    "U+2000-206F",
+    "U+20A0-20CF",
+    "U+2190-21FF",
+    "U+2212"
+  ],
+  "toolchain": {
+    "fonttools": "4.61.1",
+    "brotli": "1.2.1"
+  },
+  "fonts": [
+    {
+      "file": "Archivo-Display.woff2",
+      "source_file": "Archivo-Variable.woff2",
+      "source_sha256": "fd421044cde98509d049a42d085be76d1b56ccec0a82f37129659931fac1d958",
+      "axes": {
+        "wdth": 100,
+        "wght": [
+          600,
+          900
+        ]
+      },
+      "renamed_mono_weight": null,
+      "artifact_sha256": "1fd3a24cee2d7731307aade087747c07507a387f325cffb393c8cb24a711555b",
+      "bytes": 37272
+    },
+    {
+      "file": "InterTight-UI.woff2",
+      "source_file": "InterTight-Variable.woff2",
+      "source_sha256": "e5d42750eb95e24efe2da9e745a8e3765ca464c97791bb113f1aaff30a036010",
+      "axes": {
+        "wght": [
+          400,
+          700
+        ]
+      },
+      "renamed_mono_weight": null,
+      "artifact_sha256": "163dc171bcdef1bd65cc8782340fc6b5d8e467d4e4cf6eaa343761552ff9c5e3",
+      "bytes": 65220
+    },
+    {
+      "file": "ControlFieldMono-Regular.woff2",
+      "source_file": "IBMPlexMono-Regular.ttf",
+      "source_sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46",
+      "axes": {},
+      "renamed_mono_weight": "Regular",
+      "artifact_sha256": "23729a1f1c6d12e01a08b35e0fbf8b76c667564d1bfc54b584620964c32d80ff",
+      "bytes": 21876
+    },
+    {
+      "file": "ControlFieldMono-Medium.woff2",
+      "source_file": "IBMPlexMono-Medium.ttf",
+      "source_sha256": "a9b4c49bb299e05b5f6c481e7fb5e78943d2793249a0c8874ab574a2d1ea6755",
+      "axes": {},
+      "renamed_mono_weight": "Medium",
+      "artifact_sha256": "0a5cf638e3477829c001e9618a0ddb1f3f18a7e34335e1f8e3324855302b69e7",
+      "bytes": 22480
+    },
+    {
+      "file": "ControlFieldMono-SemiBold.woff2",
+      "source_file": "IBMPlexMono-SemiBold.ttf",
+      "source_sha256": "d3c38e55c78f5b0f28009fddba4834ec503278936a5986032424c9bd2d23aa46",
+      "axes": {},
+      "renamed_mono_weight": "SemiBold",
+      "artifact_sha256": "7e8dc5b54182f74e4f1c561dab2b56b79b603b62b748a8d5aaa763492df2e2cf",
+      "bytes": 23412
+    }
+  ]
+}

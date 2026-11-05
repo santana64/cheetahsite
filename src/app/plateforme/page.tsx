@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import styles from '@/components/ui.module.css';
 import { pageMetadata } from '@/lib/metadata';
 import { CtaBand, PageHero, ProofTag } from '@/components/ui';
 import { PLATEFORME } from '@/content/cheetah';
@@ -29,6 +30,8 @@ export default function Page() {
   return (
     <>
       <PageHero
+        code="03 / PLATEFORME"
+        entries={[{"label": "Accès · déclaré", "value": "Rôles / authentification renforcée"}, {"label": "Données · déclaré", "value": "Hébergement France / chiffrement"}, {"label": "Réversibilité", "value": "Export tableur"}]}
         fil={[{ label: 'Accueil', href: '/' }, { label: 'Plateforme' }]}
         eyebrow="Plateforme et données"
         titre="Ce que nous pouvons écrire, et ce qui se signe."
@@ -45,7 +48,7 @@ export default function Page() {
               sans qu’une attestation publique soit jointe à ce site.
             </p>
           </div>
-          <ul className="lg:col-span-8">
+          <ul className={`lg:col-span-8 ${styles.architecture}`}>
             {PLATEFORME.map((p, i) => (
               <li key={p.titre} className="reveal border-t border-white/[0.08] py-6" data-reveal-delay={i * 50}>
                 <div className="flex flex-wrap items-center justify-between gap-3">

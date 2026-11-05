@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { CtaBand, PageHero, ProofTag } from "@/components/ui";
-import CostGrid from "@/components/product/CostGrid";
-import ModuleCore from "@/components/product/ModuleCore";
+import ProductViewport from "@/components/product/ProductViewport";
 import PreuveCapture from "@/components/product/PreuveCapture";
 import TimeCard from "@/components/product/TimeCard";
 import { MODULES, type Module } from "@/content/cheetah";
@@ -182,7 +181,26 @@ export function ProductPage({
         titre={m.promesse}
         chapeau={m.intro}
         accent={m.accentHex}
-        scene={<ModuleCore slug={m.slug} className="h-full w-full" />}
+        code={`PRODUCT / ${m.slug.toUpperCase()}`}
+        entries={
+          m.slug === "cost"
+            ? [
+                { label: "Référence", value: "Budget à date" },
+                { label: "Projection", value: "Coût prévisionnel" },
+                { label: "Preuve", value: "Capture produit" },
+              ]
+            : m.slug === "time"
+              ? [
+                  { label: "Référence", value: "Baseline" },
+                  { label: "Lecture", value: "Liens et marges" },
+                  { label: "Preuve", value: "Capture produit" },
+                ]
+              : [
+                  { label: "Traçabilité", value: "Versions" },
+                  { label: "Statut", value: "Décrit par l’éditeur" },
+                  { label: "Illustration", value: "Scénario pédagogique" },
+                ]
+        }
       >
         <div className="mt-9 flex flex-wrap gap-3">
           <Link href="/contact/" className="btn btn-primary">
@@ -237,17 +255,17 @@ export function ProductPage({
           </div>
 
           <div className="reveal">
-            {m.slug === "cost" && <CostGrid focus />}
+            {m.slug === "cost" && <ProductViewport />}
             {m.slug === "time" && <TimeCard />}
             {m.slug === "doc" && <DocSchema />}
           </div>
 
-          {m.capture && (
+          {m.capture && m.slug !== "cost" && (
             <PreuveCapture
               src={m.capture.src}
               alt={m.capture.alt}
               width={1920}
-              height={m.slug === "cost" ? 330 : 860}
+              height={860}
               legende={m.capture.legende}
             />
           )}
