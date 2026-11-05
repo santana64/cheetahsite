@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/metadata';
 import ForecastSimulator from '@/components/ForecastSimulator';
 import { CtaBand, PageHero } from '@/components/ui';
 import { METHODE_ETAPES } from '@/content/cheetah';
 
 export const metadata: Metadata = {
-  title: 'La méthode de contrôle de coûts',
-  description:
-    'Budget initial, budget à date, avancement physique, valeur acquise, reste à faire, coût prévisionnel, écart et dérive : la chaîne de mesure que Cheetah Cost outille, expliquée et simulable.',
+  ...pageMetadata('/methodologie/', 'La méthode de contrôle de coûts', 'Budget initial, budget à date, avancement physique, valeur acquise, reste à faire, coût prévisionnel, écart et dérive : la chaîne de mesure que Cheetah Cost outille, expliquée et simulable.'),
 };
 
 export default function Page() {

@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/metadata';
 import Link from 'next/link';
 import { CtaBand, PageHero } from '@/components/ui';
 
 export const metadata: Metadata = {
-  title: 'Tarifs et mise en service',
-  description:
-    'Trois niveaux d’abonnement, une mise en service facturée séparément, et les prestations additionnelles chiffrées en fourchette. Sans palier caché.',
+  ...pageMetadata('/tarifs/', 'Tarifs et mise en service', 'Trois niveaux d’abonnement, une mise en service facturée séparément, et les prestations additionnelles chiffrées en fourchette. Sans palier caché.'),
 };
 
 const OFFRES = [
@@ -89,7 +88,7 @@ export default function Page() {
             >
               {o.phare && (
                 <span className="absolute -top-px left-0 font-mono text-[0.625rem] uppercase tracking-[0.18em] text-volt lg:left-8">
-                  <span className="block pt-3">Le plus demandé</span>
+                  <span className="block pt-3">Multi-projets</span>
                 </span>
               )}
               <h2 className={`display-sm ${o.phare ? 'mt-8' : ''} text-paper`}>{o.nom}</h2>

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import LegalLayout, { ANotifier } from '@/components/LegalLayout';
+import { pageMetadata } from '@/lib/metadata';
+import LegalLayout, { ANotifier, LegalChecklist } from '@/components/LegalLayout';
 import { CONTACT } from '@/content/cheetah';
 
 export const metadata: Metadata = {
-  title: 'Mentions légales',
-  description: 'Éditeur, hébergeur, propriété intellectuelle et contact du site CheetahSoft.',
+  ...pageMetadata('/mentions-legales/', 'Mentions légales', 'Éditeur, hébergeur, propriété intellectuelle et contact du site CheetahSoft.'),
   robots: { index: false, follow: true },
 };
 
@@ -33,6 +33,8 @@ export default function Page() {
         </div>
       </section>
 
+      <LegalChecklist group="publisher" />
+
       <section>
         <h2>Hébergement</h2>
         <p>
@@ -45,6 +47,8 @@ export default function Page() {
           </ANotifier>
         </div>
       </section>
+
+      <LegalChecklist group="hosting" />
 
       <section>
         <h2>Propriété intellectuelle</h2>

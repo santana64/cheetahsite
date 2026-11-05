@@ -4,7 +4,8 @@ import type { MetadataRoute } from 'next';
  * L'origine publique est fournie par NEXT_PUBLIC_SITE_URL au moment du build.
  * La valeur par défaut correspond à la prévisualisation actuelle.
  */
-const ORIGINE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://site-vitrine-six-pi.vercel.app').replace(
+const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/\/$/, '');
+const ORIGINE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://cheetahsite.vercel.app').replace(
   /\/$/,
   ''
 );
@@ -26,7 +27,7 @@ export const dynamic = 'force-static';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return PAGES.map((p) => ({
-    url: ORIGINE + p.chemin,
+    url: (BASE_PATH && !ORIGINE.endsWith(BASE_PATH) ? ORIGINE + BASE_PATH : ORIGINE) + p.chemin,
     changeFrequency: 'monthly' as const,
     priority: p.priorite,
   }));

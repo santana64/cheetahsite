@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/metadata';
 import LegalLayout, { ANotifier } from '@/components/LegalLayout';
 import { CONTACT } from '@/content/cheetah';
 
 export const metadata: Metadata = {
-  title: 'Confidentialité',
-  description:
-    'Ce que ce site collecte — c’est-à-dire rien — et comment sont traitées les données transmises par e-mail.',
+  ...pageMetadata('/confidentialite/', 'Confidentialité', 'Traitement des demandes de démonstration, messagerie, prestataire de formulaire et droits relatifs aux données personnelles.'),
   robots: { index: false, follow: true },
 };
 
@@ -20,16 +19,17 @@ export default function Page() {
         <h2>Ce que ce site collecte</h2>
         <p>
           Ce site est publié en pages statiques. Il ne dépose aucun cookie, n’intègre aucun outil de
-          mesure d’audience, aucun pixel publicitaire et aucun lecteur de réseau social. Aucune
-          donnée de navigation n’est transmise à un tiers par le code de ce site, et aucune donnée
-          n’est conservée sur ce site lui-même.
+          mesure d’audience, aucun pixel publicitaire et aucun lecteur de réseau social. Le code
+          du site ne stocke pas votre saisie sur un serveur applicatif propre. Les requêtes
+          techniques d’hébergement et les demandes de contact restent des traitements de données,
+          décrits ci-dessous.
         </p>
       </section>
 
       <section>
         <h2>Le formulaire de contact</h2>
         <p>
-          Ce site n’ayant pas de serveur applicatif, l’envoi du formulaire passe par{' '}
+          Lorsque la clé publique de formulaire est configurée, l’envoi passe par{' '}
           <strong className="text-paper">Web3Forms</strong>, service tiers d’acheminement de
           formulaires exploité par <strong className="text-paper">Web3Creative</strong>, établi en
           Inde. Ce prestataire reçoit votre demande et nous la relaie par e-mail. Il agit comme
@@ -37,7 +37,8 @@ export default function Page() {
           d’un accord de sous-traitance qui intègre les clauses contractuelles types de la décision
           d’exécution (UE) 2021/914 pour les transferts hors Espace économique européen.
         </p>
-        <p>Les données que vous saisissez et qui sont transmises sont :</p>
+        <p>Sans cette configuration, le bouton ouvre votre messagerie avec un message prérempli ; aucune demande n’est envoyée au prestataire. Vous devez envoyer le message vous-même.</p>
+        <p>En mode d’envoi direct, les données que vous saisissez et qui sont transmises sont :</p>
         <ul>
           <li>votre nom ;</li>
           <li>votre organisation ;</li>
@@ -80,11 +81,12 @@ export default function Page() {
           . Le formulaire propose d’ailleurs ce chemin en cas d’échec d’envoi.
         </p>
         <p className="text-sm text-steel-300">
-          Éléments relevés le 2 novembre 2026 dans la politique de confidentialité de Web3Forms et
+          Informations présentes dans le dépôt, relevées le 2 novembre 2026 dans la politique de confidentialité de Web3Forms et
           dans son accord de sous-traitance (version 1.0 du 13 juillet 2026).
         </p>
       </section>
 
+      <ANotifier>Les engagements contractuels et la liste actuelle des sous-traitants du prestataire doivent être vérifiés par l’éditeur avant activation de l’envoi direct. Cette refonte ne constitue pas une validation juridique de ces informations.</ANotifier>
       <section>
         <h2>Journaux techniques de l’hébergeur</h2>
         <p>

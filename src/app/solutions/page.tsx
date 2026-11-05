@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/metadata';
 import Link from 'next/link';
 import { CtaBand, PageHero, ProofTag } from '@/components/ui';
 import { ALTERNATIVES, MODULES, ROADMAP } from '@/content/cheetah';
 
 export const metadata: Metadata = {
-  title: 'Les produits Cheetah',
-  description:
-    'Cost, Time et Doc : trois modules disponibles qui mesurent le même projet sous trois angles. Report, Risk et Connect sont en développement.',
+  ...pageMetadata('/solutions/', 'Les produits Cheetah', 'Cost, Time et Doc : trois modules disponibles qui mesurent le même projet sous trois angles. Report, Risk et Connect sont en développement.'),
 };
 
 export default function Page() {

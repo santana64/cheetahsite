@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/metadata';
 import { CtaBand, PageHero } from '@/components/ui';
 import { ROADMAP } from '@/content/cheetah';
 
 export const metadata: Metadata = {
-  title: 'Feuille de route',
-  description:
-    'Report, Risk et Connect sont en développement. Aucune date d’ouverture n’est annoncée tant qu’elle n’est pas tenable.',
+  ...pageMetadata('/roadmap/', 'Feuille de route', 'Report, Risk et Connect sont en développement. Aucune date d’ouverture n’est annoncée tant qu’elle n’est pas tenable.'),
 };
 
 export default function Page() {

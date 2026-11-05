@@ -61,7 +61,7 @@ const note = (s) => {
   console.log('  ! ' + s);
 };
 
-const navigateur = await chromium.launch();
+const navigateur = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium" });
 const ctx = await navigateur.newContext({ viewport: { width: 1440, height: 1000 } });
 const page = await ctx.newPage();
 const erreurs = [];
@@ -137,6 +137,22 @@ if (!piege) note('piège : le champ est absent');
 else if (piege.tabIndex !== -1 || !piege.masque)
   note(`piège : tabIndex ${piege.tabIndex}, masqué aux technologies d’assistance : ${piege.masque}`);
 else console.log('4. champ-piège — hors tabulation et masqué aux lecteurs d’écran');
+
+/* ── 5. Réponses ambiguës et panne réseau — aucune fausse confirmation ── */
+for (const scenario of ['refus-200', 'json-invalide', 'panne-reseau']) {
+  await page.route('**/submit', async (route) => {
+    if (scenario === 'panne-reseau') return route.abort('failed');
+    return route.fulfill({ status: 200, contentType: 'application/json', body: scenario === 'refus-200'
+      ? JSON.stringify({ success: false, message: 'Refus pédagogique intercepté' }) : 'Réponse non JSON' });
+  });
+  await page.click('button[type="submit"]');
+  await page.waitForTimeout(700);
+  if (await page.locator('text=L’envoi a échoué').count() === 0) note(`${scenario} : l’erreur n’est pas signalée`);
+  if (await page.inputValue('#c-contexte') !== conserve) note(`${scenario} : saisie modifiée après échec`);
+  if (await page.locator('text=Demande transmise').count()) note(`${scenario} : fausse confirmation`);
+  await page.unroute('**/submit');
+  console.log(`5. ${scenario} — erreur affichée et saisie conservée`);
+}
 
 erreurs.forEach((e) => note(`erreur JavaScript : ${e.slice(0, 120)}`));
 

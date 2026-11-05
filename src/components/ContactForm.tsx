@@ -32,10 +32,11 @@
 
 import Link from 'next/link';
 import { FormEvent, useRef, useState } from 'react';
+import { contactAcknowledgement } from '@/lib/contact-response';
 import { CONTACT } from '@/content/cheetah';
 
 const ACCESS_KEY = process.env.NEXT_PUBLIC_FORM_ACCESS_KEY ?? '';
-const ENDPOINT = process.env.NEXT_PUBLIC_FORM_ENDPOINT ?? 'https://api.web3forms.com/submit';
+const ENDPOINT = process.env.NEXT_PUBLIC_FORM_ENDPOINT || 'https://api.web3forms.com/submit';
 const ENVOI_DIRECT = ACCESS_KEY.length > 0;
 
 type Champs = {
@@ -47,9 +48,6 @@ type Champs = {
 };
 
 type Etat = 'saisie' | 'envoi' | 'envoye' | 'echec';
-
-/** Message d'erreur renvoyé par le prestataire — donnée distante, affichée telle quelle. */
-const MAX_MESSAGE_DISTANT = 160;
 
 const ROLES = [
   'Direction de projet / PMO',
@@ -170,9 +168,12 @@ export function ContactForm() {
 
     setEtat('envoi');
     setMotif('');
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 15000);
     try {
       const reponse = await fetch(ENDPOINT, {
         method: 'POST',
+        signal: controller.signal,
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           access_key: ACCESS_KEY,
@@ -187,17 +188,10 @@ export function ContactForm() {
         }),
       });
 
-      if (!reponse.ok) {
-        // Le prestataire renvoie un corps JSON portant un champ `message`.
-        let detail = `Code ${reponse.status}`;
-        try {
-          const corps = await reponse.json();
-          if (typeof corps?.message === 'string' && corps.message.trim())
-            detail = corps.message.slice(0, MAX_MESSAGE_DISTANT);
-        } catch {
-          /* corps illisible : on garde le code HTTP */
-        }
-        setMotif(detail);
+      const body: unknown = await reponse.json().catch(() => null);
+      const acknowledgement = contactAcknowledgement(reponse.ok, reponse.status, body);
+      if (!acknowledgement.accepted) {
+        setMotif(acknowledgement.message);
         setEtat('echec');
       } else {
         setEtat('envoye');
@@ -206,6 +200,8 @@ export function ContactForm() {
     } catch {
       setMotif('La requête n’a pas abouti — connexion interrompue ou service injoignable.');
       setEtat('echec');
+    } finally {
+      window.clearTimeout(timeout);
     }
     window.setTimeout(() => statut.current?.focus(), 80);
   }
@@ -226,7 +222,7 @@ export function ContactForm() {
     <div className="panel corner-ticks p-6 sm:p-9">
       {etat === 'envoye' ? (
         <div role="status" aria-live="polite">
-          <p className="eyebrow !text-volt">Demande transmise</p>
+          <p ref={statut} tabIndex={-1} className="eyebrow !text-volt">{ENVOI_DIRECT ? 'Demande transmise' : 'Message à envoyer'}</p>
           <h2 className="display-sm mt-5 text-paper">
             {ENVOI_DIRECT ? 'C’est parti.' : 'Votre messagerie devrait s’être ouverte.'}
           </h2>
@@ -252,6 +248,7 @@ export function ContactForm() {
                 id="c-nom"
                 name="nom"
                 type="text"
+                maxLength={120}
                 autoComplete="name"
                 value={v.nom}
                 onChange={set('nom')}
@@ -267,6 +264,7 @@ export function ContactForm() {
                 id="c-organisation"
                 name="organisation"
                 type="text"
+                maxLength={160}
                 autoComplete="organization"
                 value={v.organisation}
                 onChange={set('organisation')}
@@ -282,6 +280,7 @@ export function ContactForm() {
                 id="c-email"
                 name="email"
                 type="email"
+                maxLength={254}
                 autoComplete="email"
                 inputMode="email"
                 value={v.email}
@@ -296,6 +295,7 @@ export function ContactForm() {
             <Field id="c-role" label="Fonction" hint="Facultatif">
               <select
                 id="c-role"
+                aria-describedby="c-role-hint"
                 name="role"
                 value={v.role}
                 onChange={set('role')}
@@ -322,6 +322,7 @@ export function ContactForm() {
               id="c-contexte"
               name="contexte"
               rows={6}
+              maxLength={5000}
               value={v.contexte}
               onChange={set('contexte')}
               disabled={enCours}
@@ -345,8 +346,8 @@ export function ContactForm() {
               {ENVOI_DIRECT ? (
                 <>
                   Votre demande est transmise par un prestataire d’acheminement de formulaires, qui
-                  nous la relaie par e-mail. Les champs ci-dessus sont les seules données
-                  transmises ; ce site ne dépose aucun cookie et ne conserve rien de son côté. Le
+                  nous la relaie par e-mail. Les champs saisis sont transmis avec les informations techniques nécessaires à
+                  l’acheminement et à la protection antispam. Ce site ne dépose aucun cookie de suivi. Le
                   détail figure dans la{' '}
                   <Link
                     href="/confidentialite/"
@@ -358,7 +359,7 @@ export function ContactForm() {
                 </>
               ) : (
                 <>
-                  Aucun serveur n’est configuré pour l’instant : le bouton compose le message dans
+                  Le bouton compose le message dans
                   votre logiciel de messagerie, et rien n’est transmis tant que vous ne l’envoyez
                   pas vous-même.
                 </>

@@ -1,0 +1,35 @@
+import { chromium } from 'playwright';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+const origin = process.argv[2] || 'http://127.0.0.1:3200';
+const browser = await chromium.launch({executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', headless:true});
+const page = await browser.newPage({ viewport:{width:1440,height:900} });
+const errors=[];
+page.on('pageerror', error=>errors.push(error.message));
+const slugs=['solutions','cheetah-cost','cheetah-time','cheetah-doc','plateforme','methodologie','tarifs','roadmap','contact','mentions-legales','confidentialite','cgv'];
+const titles=new Set();
+for(const slug of slugs){
+  const response=await page.goto(`${origin}/${slug}/`);
+  assert.equal(response.status(),200,slug);
+  const title=await page.title(); assert(!titles.has(title),`Duplicate title ${title}`);titles.add(title);
+  assert.equal(await page.locator('h1').count(),1,`${slug} h1`);
+  assert((await page.locator('link[rel="canonical"]').getAttribute('href')).endsWith(`/${slug}/`),`${slug} canonical`);
+  assert(await page.locator('meta[property="og:title"]').getAttribute('content'),`${slug} OG`);
+}
+await page.goto(`${origin}/contact/`);
+await page.locator('button[type="submit"]').click();
+assert.equal(await page.locator('[aria-invalid="true"]').count(),4);
+assert.equal(await page.evaluate(()=>document.activeElement.id),'c-nom');
+await page.setViewportSize({width:390,height:844});
+await page.getByRole('button',{name:'Ouvrir le menu'}).click();
+assert.equal(await page.locator('#menu-mobile').isVisible(),true);
+await page.keyboard.press('Escape');
+assert.equal(await page.getByRole('button',{name:'Ouvrir le menu'}).getAttribute('aria-expanded'),'false');
+assert.equal(await page.getByRole('button',{name:'Ouvrir le menu'}).evaluate(el=>el===document.activeElement),true);
+await page.evaluate(async () => { for(let y=0;y<document.body.scrollHeight;y+=600){window.scrollTo(0,y);await new Promise(r=>setTimeout(r,80));} window.scrollTo(0,0); });
+await page.waitForTimeout(1100);
+await fs.mkdir('verif',{recursive:true});
+await page.screenshot({path:'verif/contact-mobile-integrity.png',fullPage:true});
+assert.deepEqual(errors,[]);
+await browser.close();
+console.log(`${slugs.length} secondary routes, unique titles, canonicals, Open Graph, contact validation and mobile Escape: PASS`);

@@ -1,3 +1,21 @@
+# Precision in motion — refonte du 5 novembre 2026
+
+Le contrat courant et le plan sont dans `docs/audit/2026-11-05-refonte.md`.
+
+## Signature de l’accueil
+Une coupe technique SVG en trois plans COST / TIME / DOC, sélectionnables au clic, au clavier et au toucher, remplace la séquence WebGL de 320vh. Les métriques sont pédagogiques et explicitement signalées. Pas de boucle de rendu permanente ni de texte dépendant du scroll. La comparaison dépenses–avancement suit dans une section claire. Le code WebGL reste disponible pour les visualisations des pages de module.
+
+## Sources et calculs
+Les captures réelles sont conservées et l’accueil montre directement celle de Cost. Les présentations natives sont des reconstitutions, jamais des captures originales. Les sous-totaux calculés des cinq lignes (795 / 784 / −11 k€) sont distincts du récapitulatif source inexpliqué (800 / 798 / −3 k€). Ni des lignes masquées ni un périmètre global ne sont supposés. Les arrondis source restent documentés comme non établis. Les fonctions pures finance/schedule portent les calculs pédagogiques et leurs tests.
+
+## Polices et états
+Les trois familles historiques sont désormais locales (`public/fonts/`, licences et provenance jointes). Même palette, grille et règles d’accessibilité ci-dessous. Contrôles 44px minimum ; ratios indéfinis explicités ; réponse du formulaire acceptée uniquement avec acquittement explicite, délai maximal 15s, saisie conservée à l’erreur.
+
+---
+
+## Référence historique — système existant conservé hors accueil
+Les sections suivantes décrivent les fondations précédentes. Les dispositions ci-dessus priment pour l’accueil et la présentation des preuves.
+
 # CheetahSoft — direction artistique et système de design
 
 **Precision in motion.**
@@ -188,8 +206,7 @@ effet d'entrée, sont marqués `data-sequence` et explicitement exclus.
 
 ## 6. Présentation du produit
 
-Les captures brutes du logiciel ne sont pas affichées dans le flux : leur
-palette orange et verte entre en conflit frontal avec la direction artistique.
+Les captures brutes sont des preuves : la page d’accueil expose la capture Cost dans le flux et les pages produit la rendent également accessible.
 
 La grille Cheetah Cost et la fiche projet Cheetah Time sont donc **reconstituées
 nativement** — mêmes colonnes, mêmes groupes d'en-tête, mêmes valeurs, relevées

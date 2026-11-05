@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/metadata';
 import { CtaBand, PageHero, ProofTag } from '@/components/ui';
 import { PLATEFORME } from '@/content/cheetah';
 
 export const metadata: Metadata = {
-  title: 'Plateforme, sécurité et données',
-  description:
-    'Ce que l’éditeur déclare sur l’hébergement, le chiffrement, les droits d’accès et la réversibilité des données — et ce qui relève du cadre contractuel.',
+  ...pageMetadata('/plateforme/', 'Plateforme, sécurité et données', 'Ce que l’éditeur déclare sur l’hébergement, le chiffrement, les droits d’accès et la réversibilité des données — et ce qui relève du cadre contractuel.'),
 };
 
 const REVERSIBILITE = [

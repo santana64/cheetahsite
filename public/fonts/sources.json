@@ -1,0 +1,48 @@
+{
+  "repository": "https://github.com/google/fonts",
+  "commit": "fbe81817505e8aeadc53cc7a38a2b76fb57c333e",
+  "toolchain": {
+    "fonttools": "4.61.1",
+    "brotli": "1.2.1"
+  },
+  "unicode_ranges": [
+    "U+0000-024F",
+    "U+1E00-1EFF",
+    "U+2000-206F",
+    "U+20A0-20CF",
+    "U+2190-21FF",
+    "U+2212"
+  ],
+  "fonts": [
+    {
+      "file": "Archivo-Variable.woff2",
+      "source_url": "https://raw.githubusercontent.com/google/fonts/fbe81817505e8aeadc53cc7a38a2b76fb57c333e/ofl/archivo/Archivo%5Bwdth,wght%5D.ttf",
+      "source_sha256": "0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053",
+      "artifact_sha256": "fd421044cde98509d049a42d085be76d1b56ccec0a82f37129659931fac1d958"
+    },
+    {
+      "file": "InterTight-Variable.woff2",
+      "source_url": "https://raw.githubusercontent.com/google/fonts/fbe81817505e8aeadc53cc7a38a2b76fb57c333e/ofl/intertight/InterTight%5Bwght%5D.ttf",
+      "source_sha256": "b81b73dcb64df3c230cabade7df6c5773bf863233f24c9ee51087519f1f88b6f",
+      "artifact_sha256": "e5d42750eb95e24efe2da9e745a8e3765ca464c97791bb113f1aaff30a036010"
+    },
+    {
+      "file": "IBMPlexMono-Regular.ttf",
+      "source_url": "https://raw.githubusercontent.com/google/fonts/fbe81817505e8aeadc53cc7a38a2b76fb57c333e/ofl/ibmplexmono/IBMPlexMono-Regular.ttf",
+      "source_sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46",
+      "artifact_sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"
+    },
+    {
+      "file": "IBMPlexMono-Medium.ttf",
+      "source_url": "https://raw.githubusercontent.com/google/fonts/fbe81817505e8aeadc53cc7a38a2b76fb57c333e/ofl/ibmplexmono/IBMPlexMono-Medium.ttf",
+      "source_sha256": "a9b4c49bb299e05b5f6c481e7fb5e78943d2793249a0c8874ab574a2d1ea6755",
+      "artifact_sha256": "a9b4c49bb299e05b5f6c481e7fb5e78943d2793249a0c8874ab574a2d1ea6755"
+    },
+    {
+      "file": "IBMPlexMono-SemiBold.ttf",
+      "source_url": "https://raw.githubusercontent.com/google/fonts/fbe81817505e8aeadc53cc7a38a2b76fb57c333e/ofl/ibmplexmono/IBMPlexMono-SemiBold.ttf",
+      "source_sha256": "d3c38e55c78f5b0f28009fddba4834ec503278936a5986032424c9bd2d23aa46",
+      "artifact_sha256": "d3c38e55c78f5b0f28009fddba4834ec503278936a5986032424c9bd2d23aa46"
+    }
+  ]
+}

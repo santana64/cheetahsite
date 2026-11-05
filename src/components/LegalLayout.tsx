@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { LEGAL, LEGAL_GROUPS } from '@/content/legal';
 import { Breadcrumb } from '@/components/ui';
 
 export function LegalLayout({
@@ -38,3 +39,13 @@ export function ANotifier({ children }: { children: ReactNode }) {
 }
 
 export default LegalLayout;
+
+/** Never substitute invented legal identity for missing publisher data. */
+export function LegalChecklist({ group }: { group: keyof typeof LEGAL_GROUPS }) {
+  return <dl className="mt-5 divide-y divide-white/10 border-y border-white/10">
+    {LEGAL_GROUPS[group].map(([key, label]) => <div key={key} className="grid gap-1 py-3 sm:grid-cols-2">
+      <dt className="text-sm text-steel-300">{label}</dt>
+      <dd className="text-sm text-amber">{LEGAL[key] ?? 'À renseigner par l’éditeur'}</dd>
+    </div>)}
+  </dl>;
+}

@@ -1,50 +1,31 @@
-'use client';
+"use client";
 
-/**
- * SIMULATEUR DE COÛT PRÉVISIONNEL — démonstration pédagogique.
- *
- * Reproduit la chaîne de calcul visible dans l'interface Cheetah Cost :
- *   Valeur acquise = avancement physique × budget à date
- *   Indice de performance des coûts = valeur acquise ÷ dépenses
- *   Reste à faire  = (budget à date − valeur acquise), au budget ou corrigé
- *                    de l'indice de performance
- *   Coût prévisionnel = dépenses + reste à faire
- *   Écart = coût prévisionnel − budget à date      (positif = dépassement)
- *   Dérive = écart courant − écart de l'arrêté précédent
- *
- * La convention de signe de l'écart est celle lue dans la capture produit
- * versionnée dans ce dépôt (colonnes E, E/BàD, E préc. et D).
- *
- * Les valeurs manipulées ici sont fictives et ne proviennent d'aucun projet
- * réel. Ce module illustre la méthode ; il ne reproduit pas le moteur de
- * calcul du logiciel.
- */
+import { useId, useState } from "react";
+import { calculateForecast, type ForecastMode } from "@/lib/finance";
 
-import { useMemo, useState } from 'react';
-
-const fmt = (n: number, d = 0) =>
-  n.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmt = (n: number | null, decimals = 1) =>
+  n === null
+    ? "Non calculable"
+    : n.toLocaleString("fr-FR", { maximumFractionDigits: decimals });
+const signed = (n: number | null) =>
+  n === null ? "Non calculable" : `${n > 0 ? "+" : ""}${fmt(n)}`;
 
 function Slider({
   id,
   label,
-  unite,
-  min,
-  max,
-  step,
   value,
+  min = 0,
+  max = 2000,
+  unit = "k€",
   onChange,
-  aide,
 }: {
   id: string;
   label: string;
-  unite: string;
-  min: number;
-  max: number;
-  step: number;
   value: number;
-  onChange: (v: number) => void;
-  aide: string;
+  min?: number;
+  max?: number;
+  unit?: string;
+  onChange: (value: number) => void;
 }) {
   return (
     <div>
@@ -53,7 +34,7 @@ function Slider({
           {label}
         </label>
         <output htmlFor={id} className="num text-sm text-volt">
-          {fmt(value)} {unite}
+          {fmt(value)} {unit}
         </output>
       </div>
       <input
@@ -61,250 +42,261 @@ function Slider({
         type="range"
         min={min}
         max={max}
-        step={step}
+        step={unit === "%" ? 1 : 10}
         value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        aria-describedby={`${id}-aide`}
-        className="mt-2 w-full"
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="mt-2 min-h-11 w-full"
       />
-      <p id={`${id}-aide`} className="mt-2 text-xs leading-relaxed text-steel-400">
-        {aide}
-      </p>
     </div>
   );
 }
 
 export function ForecastSimulator() {
-  const [bad, setBad] = useState(800);
-  const [avancement, setAvancement] = useState(45);
-  const [depenses, setDepenses] = useState(420);
-  const [ePrec, setEPrec] = useState(9);
-  const [tendance, setTendance] = useState(true);
-
-  const r = useMemo(() => {
-    const va = (avancement / 100) * bad;
-    const ipc = depenses > 0 ? va / depenses : 1;
-    const resteBudget = Math.max(bad - va, 0);
-    const raf = tendance && ipc > 0.01 ? resteBudget / ipc : resteBudget;
-    const cp = depenses + raf;
-    const e = cp - bad;
-    const ratio = bad > 0 ? (e / bad) * 100 : 0;
-    const d = e - ePrec;
-    return { va, ipc, raf, cp, e, ratio, d };
-  }, [bad, avancement, depenses, ePrec, tendance]);
-
-  const echelle = Math.max(r.cp, bad) * 1.08;
-  const pctDepenses = (depenses / echelle) * 100;
-  const pctRaf = (r.raf / echelle) * 100;
-  const pctBad = (bad / echelle) * 100;
-
-  const statut =
-    r.ratio > 5
-      ? { texte: 'Dépassement à traiter', couleur: '#f2605b' }
-      : r.ratio > 1
-        ? { texte: 'Dérive à surveiller', couleur: '#f2a93b' }
-        : { texte: 'Dans la cible', couleur: '#cdf564' };
-
+  const instance = useId();
+  const [initialBudget, setInitialBudget] = useState(800);
+  const [variation, setVariation] = useState(0);
+  const [progress, setProgress] = useState(45);
+  const [expenses, setExpenses] = useState(420);
+  const [remaining, setRemaining] = useState(500);
+  const [previousVariance, setPreviousVariance] = useState(9);
+  const [mode, setMode] = useState<ForecastMode>("performance");
+  const r = calculateForecast({
+    initialBudget,
+    variation,
+    expenses,
+    progress,
+    remaining,
+    previousVariance,
+    mode,
+  });
+  const scale = Math.max(r.forecast ?? expenses, r.budget, 1) * 1.1;
+  const positive = r.variance !== null && r.variance > 0;
+  const color =
+    r.variance === null
+      ? "var(--amber)"
+      : positive
+        ? "var(--drift)"
+        : "var(--volt)";
+  const id = (name: string) => `${instance}-sim-${name}`;
+  const results = [
+    ["Budget à date", `${fmt(r.budget)} k€`, "BI + variation"],
+    ["Valeur acquise", `${fmt(r.earned)} k€`, "Avancement × budget à date"],
+    [
+      "Indice de performance des coûts",
+      fmt(r.cpi, 3),
+      "Valeur acquise ÷ dépenses",
+    ],
+    [
+      "Reste à faire",
+      r.remaining === null ? "Non calculable" : `${fmt(r.remaining)} k€`,
+      "Selon la méthode choisie",
+    ],
+    [
+      "Coût prévisionnel",
+      r.forecast === null ? "Non calculable" : `${fmt(r.forecast)} k€`,
+      "Dépenses + reste à faire",
+    ],
+    [
+      "Écart absolu",
+      r.variance === null ? "Non calculable" : `${signed(r.variance)} k€`,
+      "Coût prévisionnel − budget à date",
+    ],
+    [
+      "Écart relatif",
+      r.ratio === null ? "Non calculable" : `${signed(r.ratio)} %`,
+      "Écart ÷ budget à date × 100",
+    ],
+    [
+      "Dérive entre arrêtés",
+      r.drift === null ? "Non calculable" : `${signed(r.drift)} k€`,
+      "Écart courant − écart précédent",
+    ],
+  ];
   return (
-    <div className="panel corner-ticks overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-5 py-3.5 sm:px-7">
-        <p className="eyebrow !text-volt">Simulateur de coût prévisionnel</p>
-        <p className="rounded-full border border-amber/40 px-2.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-amber">
-          Données fictives · modèle pédagogique
+    <div className="panel finance-simulator corner-ticks overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4 sm:px-7">
+        <p className="eyebrow !text-volt">Laboratoire de prévision</p>
+        <p className="font-mono text-xs text-amber">
+          Données fictives · démonstration pédagogique
         </p>
       </div>
-
-      <div className="grid gap-10 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-12">
-        {/* Hypothèses */}
-        <form className="space-y-7" onSubmit={(e) => e.preventDefault()}>
+      <div className="grid gap-10 p-5 sm:p-7 lg:grid-cols-2 lg:gap-12">
+        <form
+          className="space-y-5"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          <p className="text-sm leading-relaxed text-steel-300">
+            Changez les hypothèses. Observez ce qu’un suivi des seules dépenses
+            ne révèle pas.
+          </p>
           <Slider
-            id="sim-bad"
-            label="Budget à date"
-            unite="kEUR"
-            min={200}
-            max={2000}
-            step={10}
-            value={bad}
-            onChange={setBad}
-            aide="Budget initial corrigé des variations validées. C’est la cible contre laquelle l’écart est mesuré."
+            id={id("bi")}
+            label="Budget initial"
+            value={initialBudget}
+            onChange={(value) => {
+              setInitialBudget(value);
+              setVariation((current) => Math.max(current, -value));
+            }}
           />
           <Slider
-            id="sim-av"
+            id={id("variation")}
+            label="Variation validée"
+            min={-initialBudget}
+            max={500}
+            value={variation}
+            onChange={setVariation}
+          />
+          <div className="flex items-center justify-between border-y border-white/10 py-3 text-sm">
+            <span>Budget à date · calculé</span>
+            <output className="num text-paper">{fmt(r.budget)} k€</output>
+          </div>
+          <Slider
+            id={id("av")}
             label="Avancement physique"
-            unite="%"
-            min={0}
+            unit="%"
             max={100}
-            step={1}
-            value={avancement}
-            onChange={setAvancement}
-            aide="Part du travail réellement produite. Saisie indépendamment des dépenses — c’est là que se joue la détection précoce."
+            value={progress}
+            onChange={setProgress}
           />
           <Slider
-            id="sim-dep"
+            id={id("dep")}
             label="Dépenses engagées"
-            unite="kEUR"
-            min={0}
-            max={2000}
-            step={10}
-            value={depenses}
-            onChange={setDepenses}
-            aide="Ce qui est sorti ou engagé à la date d’arrêté."
+            value={expenses}
+            onChange={setExpenses}
           />
-          <Slider
-            id="sim-eprec"
-            label="Écart à l’arrêté précédent"
-            unite="kEUR"
-            min={-200}
-            max={200}
-            step={1}
-            value={ePrec}
-            onChange={setEPrec}
-            aide="Sert à calculer la dérive. C’est la variation d’un arrêté à l’autre qui déclenche l’action, pas le niveau absolu."
-          />
-
-          <fieldset className="border-t border-white/[0.07] pt-6">
-            <legend className="sr-only">Méthode d’estimation du reste à faire</legend>
-            <p className="mb-3 text-sm font-medium text-paper">Estimation du reste à faire</p>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setTendance(false)}
-                aria-pressed={!tendance}
-                className={`btn !min-h-0 !px-3.5 !py-2 !text-[0.8125rem] ${
-                  !tendance ? 'btn-primary' : 'btn-ghost'
-                }`}
-              >
-                Au budget
-              </button>
-              <button
-                type="button"
-                onClick={() => setTendance(true)}
-                aria-pressed={tendance}
-                className={`btn !min-h-0 !px-3.5 !py-2 !text-[0.8125rem] ${
-                  tendance ? 'btn-primary' : 'btn-ghost'
-                }`}
-              >
-                Corrigé de la performance
-              </button>
+          <fieldset className="border-t border-white/10 pt-5">
+            <legend className="text-sm font-medium text-paper">
+              Estimation du reste à faire
+            </legend>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(
+                [
+                  { value: "manual", label: "Saisie métier" },
+                  { value: "budget", label: "Au budget" },
+                  { value: "performance", label: "Corrigé de la performance" },
+                ] as const
+              ).map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  aria-pressed={mode === item.value}
+                  onClick={() => setMode(item.value)}
+                  className={`btn !px-3 !text-xs ${mode === item.value ? "btn-primary" : "btn-ghost"}`}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
-            <p className="mt-3 text-xs leading-relaxed text-steel-400">
-              {tendance
-                ? 'Le reste à faire est divisé par l’indice de performance constaté : on suppose que la dérive déjà observée se poursuit.'
-                : 'Le reste à faire est pris au budget : on suppose que le reste du projet se déroulera exactement comme prévu.'}
+            <p className="mt-3 text-xs leading-relaxed text-steel-300">
+              {mode === "manual"
+                ? "Reste à faire estimé indépendamment par le responsable de projet."
+                : mode === "budget"
+                  ? "RàF = budget à date − valeur acquise. Le travail restant est supposé réalisé au budget."
+                  : "RàF = (budget à date − valeur acquise) ÷ indice de performance. La performance observée est supposée se poursuivre."}
             </p>
           </fieldset>
+          {mode === "manual" && (
+            <Slider
+              id={id("raf")}
+              label="Reste à faire estimé"
+              value={remaining}
+              onChange={setRemaining}
+            />
+          )}
+          <Slider
+            id={id("eprec")}
+            label="Écart à l’arrêté précédent"
+            min={-200}
+            max={200}
+            value={previousVariance}
+            onChange={setPreviousVariance}
+          />
         </form>
-
-        {/* Résultats */}
         <div>
-          <div className="flex items-center justify-between gap-4">
-            <p className="eyebrow">Résultat de l’arrêté</p>
-            <span
-              className="rounded-full px-2.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-[0.12em]"
-              style={{ color: statut.couleur, border: `1px solid ${statut.couleur}55` }}
-            >
-              {statut.texte}
-            </span>
-          </div>
-
-          {/* Barre comparative */}
-          <div className="mt-6">
-            <div className="relative h-14 w-full overflow-hidden rounded-sm bg-ink-700 ring-1 ring-white/[0.06]">
-              <div
-                className="absolute inset-y-0 left-0 transition-[width] duration-500 ease-cheetah"
-                style={{ width: `${pctDepenses}%`, background: 'rgba(205,245,100,0.82)' }}
-              />
-              <div
-                className="absolute inset-y-0 transition-all duration-500 ease-cheetah"
-                style={{
-                  left: `${pctDepenses}%`,
-                  width: `${pctRaf}%`,
-                  background:
-                    'repeating-linear-gradient(-45deg, rgba(205,245,100,0.3) 0 6px, rgba(205,245,100,0.12) 6px 12px)',
-                }}
-              />
-              <div
-                className="pointer-events-none absolute inset-y-0 w-px bg-paper transition-[left] duration-500 ease-cheetah"
-                style={{ left: `${pctBad}%` }}
-                aria-hidden="true"
+          <p className="eyebrow">Lecture de l’arrêté</p>
+          <p
+            className="mt-5 font-display text-4xl font-bold tracking-tight sm:text-5xl"
+            style={{ color }}
+          >
+            {r.forecast === null ? "À estimer" : `${fmt(r.forecast)} k€`}
+          </p>
+          <p className="mt-2 text-sm text-steel-300">
+            Coût final anticipé ·{" "}
+            {r.variance === null
+              ? "performance insuffisante pour projeter"
+              : positive
+                ? "dépassement prévisionnel"
+                : r.variance < 0
+                  ? "économie prévisionnelle"
+                  : "à la cible"}
+          </p>
+          <div className="mt-7" aria-hidden="true">
+            <div className="relative h-14 overflow-hidden bg-ink-700">
+              <span
+                className="absolute inset-y-0 left-0 bg-volt transition-[width] duration-300 motion-reduce:transition-none"
+                style={{ width: `${(expenses / scale) * 100}%` }}
               />
               <span
-                className="pointer-events-none absolute top-0.5 whitespace-nowrap bg-ink-700 px-1 font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-paper transition-[left] duration-500 ease-cheetah"
-                style={{ left: `calc(${pctBad}% + 5px)` }}
-              >
-                BàD
-              </span>
+                className="absolute inset-y-0 transition-[width,left] duration-300 motion-reduce:transition-none"
+                style={{
+                  left: `${(expenses / scale) * 100}%`,
+                  width: `${((r.remaining ?? 0) / scale) * 100}%`,
+                  background:
+                    "repeating-linear-gradient(-45deg,#8ca64d 0 5px,#253020 5px 10px)",
+                }}
+              />
+              <span
+                className="absolute inset-y-0 w-0.5 bg-paper"
+                style={{ left: `${(r.budget / scale) * 100}%` }}
+              />
             </div>
-            <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-steel-400">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2" style={{ background: 'rgba(205,245,100,0.82)' }} /> Dépensé
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span
-                  className="h-2 w-2"
-                  style={{
-                    background:
-                      'repeating-linear-gradient(-45deg, rgba(205,245,100,0.45) 0 3px, rgba(205,245,100,0.15) 3px 6px)',
-                  }}
-                />
-                Reste à faire
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-px bg-paper" /> Budget à date
-              </span>
-            </div>
+            <p className="mt-2 text-xs text-steel-300">
+              Plein : dépenses · hachures : reste à faire · repère : budget à
+              date
+            </p>
           </div>
-
-          {/* Tableau de sortie */}
-          <table className="data-grid mt-7">
+          <table className="data-grid mt-6 w-full">
             <caption className="sr-only">
-              Résultats calculés à partir des hypothèses saisies
+              Résultats calculés et formules ; montants en milliers d’euros
             </caption>
             <tbody>
-              <tr>
-                <td className="!text-steel-400">Valeur acquise</td>
-                <td className="!text-paper">{fmt(r.va)} kEUR</td>
-              </tr>
-              <tr>
-                <td className="!text-steel-400">Indice de performance des coûts</td>
-                <td className="!text-paper">{fmt(r.ipc, 2)}</td>
-              </tr>
-              <tr>
-                <td className="!text-steel-400">Reste à faire</td>
-                <td className="!text-paper">{fmt(r.raf)} kEUR</td>
-              </tr>
-              <tr>
-                <td className="!text-steel-400">Coût prévisionnel</td>
-                <td className="!text-paper">{fmt(r.cp)} kEUR</td>
-              </tr>
-              <tr>
-                <td className="!text-steel-400">Écart / budget à date</td>
-                <td style={{ color: statut.couleur }}>
-                  {r.e >= 0 ? '+' : '−'}
-                  {fmt(Math.abs(r.e))} kEUR · {r.ratio >= 0 ? '+' : '−'}
-                  {fmt(Math.abs(r.ratio), 1)} %
-                </td>
-              </tr>
-              <tr>
-                <td className="!text-steel-400">Dérive depuis l’arrêté précédent</td>
-                <td style={{ color: r.d > 0 ? '#f2605b' : '#cdf564' }}>
-                  {r.d >= 0 ? '+' : '−'}
-                  {fmt(Math.abs(r.d))} kEUR
-                </td>
-              </tr>
+              {results.map(([label, value, formula]) => (
+                <tr key={label}>
+                  <th
+                    scope="row"
+                    className="py-3 text-left text-xs font-normal text-steel-300"
+                  >
+                    {label}
+                    <span className="mt-1 block text-[0.625rem] text-steel-400">
+                      {formula}
+                    </span>
+                  </th>
+                  <td className="num !text-paper">{value}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
-
-          <p className="mt-6 border-t border-white/[0.07] pt-5 text-xs leading-relaxed text-steel-400">
-            Essayez : laissez les dépenses à 420 kEUR et descendez l’avancement physique de
-            45 % à 35 %. Rien ne change au niveau de la trésorerie — mais le coût
-            prévisionnel, lui, part. C’est exactement l’écart qu’un suivi purement comptable
-            ne voit pas.
+          {r.forecast === null && (
+            <p role="status" className="mt-4 text-sm text-amber">
+              Sans dépenses ou sans valeur acquise, la performance ne permet pas
+              d’estimer le travail restant. Choisissez « Saisie métier » ou « Au
+              budget ».
+            </p>
+          )}
+          {r.budget === 0 && (
+            <p className="mt-4 text-sm text-amber">
+              Budget à date nul : l’écart relatif ne peut pas être calculé.
+            </p>
+          )}
+          <p className="mt-5 border-t border-white/10 pt-4 text-xs leading-relaxed text-steel-300">
+            Ce modèle illustre la méthode, sans reproduire le moteur du
+            logiciel. Montants en k€ ; calculs sans arrondi intermédiaire,
+            affichage à une décimale. Les seuils de risque dépendent du contexte
+            du projet.
           </p>
         </div>
       </div>
     </div>
   );
 }
-
 export default ForecastSimulator;

@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/metadata';
 import ContactForm from '@/components/ContactForm';
 import { PageHero } from '@/components/ui';
 import { CONTACT, PARCOURS } from '@/content/cheetah';
 
 export const metadata: Metadata = {
-  title: 'Demander une démonstration',
-  description:
-    'Trente minutes sur un de vos projets. On monte vos lignes budgétaires dans Cheetah et vous jugez sur pièce.',
+  ...pageMetadata('/contact/', 'Demander une démonstration', 'Trente minutes sur un de vos projets. On monte vos lignes budgétaires dans Cheetah et vous jugez sur pièce.'),
 };
 
 export default function Page() {

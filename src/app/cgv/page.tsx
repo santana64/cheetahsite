@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
-import LegalLayout, { ANotifier } from '@/components/LegalLayout';
+import { pageMetadata } from '@/lib/metadata';
+import LegalLayout, { ANotifier, LegalChecklist } from '@/components/LegalLayout';
 import { CONTACT } from '@/content/cheetah';
 
 export const metadata: Metadata = {
-  title: 'Conditions générales',
-  description:
-    'Cadre contractuel de la fourniture des modules Cheetah : objet, durée, prix, niveaux de service, données et réversibilité.',
+  ...pageMetadata('/cgv/', 'Conditions générales', 'Cadre contractuel de la fourniture des modules Cheetah : objet, durée, prix, niveaux de service, données et réversibilité.'),
   robots: { index: false, follow: true },
 };
 
@@ -16,6 +15,8 @@ export default function Page() {
       fil={[{ label: 'Accueil', href: '/' }, { label: 'Conditions générales' }]}
       intro="Ce site affiche des tarifs : il doit donc indiquer le cadre dans lequel ils s’appliquent. Cette page décrit la structure du contrat. Elle ne remplace pas le contrat lui-même, qui prévaut en cas de divergence."
     >
+      <ANotifier>Cadre à compléter et à faire valider par le responsable juridique avant publication. Les éléments ci-dessous ne constituent pas des conditions générales finalisées.</ANotifier>
+      <LegalChecklist group="contract" />
       <section>
         <h2>Objet</h2>
         <p>

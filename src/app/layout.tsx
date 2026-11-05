@@ -1,30 +1,35 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { Archivo, IBM_Plex_Mono, Inter_Tight } from 'next/font/google';
+import localFont from 'next/font/local';
 import { ReactNode } from 'react';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import ScrollReveal from '@/components/ScrollReveal';
 
-const display = Archivo({
-  subsets: ['latin'],
+// Bundled OFL fonts: reproducible builds without third-party font requests.
+const display = localFont({
+  src: '../../public/fonts/Archivo-Variable.woff2',
   variable: '--font-display',
-  weight: ['600', '700', '800', '900'],
+  weight: '600 900',
   display: 'swap',
 });
 
-const ui = Inter_Tight({
-  subsets: ['latin'],
+const ui = localFont({
+  src: '../../public/fonts/InterTight-Variable.woff2',
   variable: '--font-ui',
-  weight: ['400', '500', '600', '700'],
+  weight: '400 700',
   display: 'swap',
 });
 
-const mono = IBM_Plex_Mono({
-  subsets: ['latin'],
+const mono = localFont({
+  src: [
+    { path: '../../public/fonts/IBMPlexMono-Regular.ttf', weight: '400' },
+    { path: '../../public/fonts/IBMPlexMono-Medium.ttf', weight: '500' },
+    { path: '../../public/fonts/IBMPlexMono-SemiBold.ttf', weight: '600' },
+  ],
   variable: '--font-mono',
-  weight: ['400', '500', '600'],
   display: 'swap',
+  preload: false,
 });
 
 export const metadata: Metadata = {

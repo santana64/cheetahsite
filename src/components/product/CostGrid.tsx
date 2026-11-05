@@ -18,6 +18,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { sumVisibleCostRows } from '@/lib/finance';
 import { COST_ARRETE, COST_LIGNES, type LigneBudgetaire } from '@/content/cheetah';
 
 const nf = (n: number, d = 0) =>
@@ -89,6 +90,8 @@ export function CostGrid({ focus = false }: { focus?: boolean }) {
     return () => io.disconnect();
   }, []);
 
+  const subtotal = sumVisibleCostRows(COST_LIGNES);
+
   const ligne = (l: LigneBudgetaire, i: number) => {
     const t = tonEcart(l.e);
     return (
@@ -154,6 +157,13 @@ export function CostGrid({ focus = false }: { focus?: boolean }) {
 
   return (
     <div ref={hote} className="panel corner-ticks overflow-hidden">
+      <div className="border-b border-amber/30 bg-amber/[0.05] px-4 py-4 text-xs leading-relaxed text-steel-200 sm:px-6">
+        <p className="font-semibold text-amber">Reconstitution d’une capture réelle · synthèse source non réconciliée</p>
+        <p className="mt-2">Les cinq lignes visibles donnent un sous-total de {nf(subtotal.budget)} k€ de budget à date,
+          {nf(subtotal.forecast)} k€ de coût prévisionnel et {nf(subtotal.variance)} k€ d’écart.
+          Le bandeau de la capture indique 800 / 798 / −3 k€ : son périmètre et son calcul ne sont pas documentés
+          (798 − 800 = −2 k€). Aucune ligne masquée n’est attestée. Ces valeurs historiques sont conservées, sans les présenter comme un total validé.</p>
+      </div>
       {/* Barre d'arrêté */}
       <div className="flex flex-wrap items-center gap-x-8 gap-y-3 border-b border-white/[0.07] px-4 py-3.5 sm:px-6">
         <div className="flex items-center gap-3">
@@ -166,9 +176,9 @@ export function CostGrid({ focus = false }: { focus?: boolean }) {
         </div>
         <dl className="flex flex-wrap items-baseline gap-x-7 gap-y-1">
           {[
-            { k: 'BàD', v: `${nf(COST_ARRETE.bad)}`, c: 'text-paper' },
-            { k: 'CP', v: `${nf(COST_ARRETE.cp)}`, c: 'text-paper' },
-            { k: 'Écart', v: `${nf(COST_ARRETE.ecart)}`, c: 'text-volt' },
+            { k: 'BàD source', v: `${nf(COST_ARRETE.bad)}`, c: 'text-paper' },
+            { k: 'CP source', v: `${nf(COST_ARRETE.cp)}`, c: 'text-paper' },
+            { k: 'Écart source', v: `${nf(COST_ARRETE.ecart)}`, c: 'text-volt' },
           ].map((x) => (
             <div key={x.k} className="flex items-baseline gap-2">
               <dt className="font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-steel-500">
@@ -181,7 +191,7 @@ export function CostGrid({ focus = false }: { focus?: boolean }) {
       </div>
 
       {/* Grille */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Grille budgétaire, défilement horizontal">
         <table className="w-full min-w-[920px] border-collapse text-left">
           <caption className="sr-only">
             Arrêté {COST_ARRETE.date} du tableau {COST_ARRETE.tableau}, projet {COST_ARRETE.projet}.
@@ -236,6 +246,11 @@ export function CostGrid({ focus = false }: { focus?: boolean }) {
         </table>
       </div>
 
+      <p className="border-t border-white/10 px-4 py-3 text-xs leading-relaxed text-steel-300 sm:px-6">
+        Sous-total des valeurs affichées : BàD {nf(subtotal.budget)} k€ · CP {nf(subtotal.forecast)} k€ · E {nf(subtotal.variance)} k€.
+        LB02 : 78,5 + 210 = 288,5 k€, affiché 289 dans la source ; 11 % est un ratio arrondi.
+        La convention d’arrondi d’origine n’est pas documentée. Aucune donnée de la capture n’a été retouchée.
+      </p>
       <p className="border-t border-white/[0.07] px-4 py-3 font-mono text-[0.625rem] leading-relaxed text-steel-500 sm:px-6">
         Unités : {COST_ARRETE.unite}. {COST_ARRETE.source}
       </p>

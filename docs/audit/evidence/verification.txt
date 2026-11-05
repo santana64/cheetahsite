@@ -1,0 +1,94 @@
+
+> cheetahsoft-site-vitrine@1.0.0 verify
+> node scripts/verify.mjs
+
+
+=== 375px ===
+  ok /
+  ok /solutions/
+  ok /cheetah-cost/
+  ok /cheetah-time/
+  ok /cheetah-doc/
+  ok /methodologie/
+  ok /plateforme/
+  ok /tarifs/
+  ok /roadmap/
+  ok /contact/
+  ok /mentions-legales/
+  ok /cgv/
+  ok /confidentialite/
+  ok /404.html
+
+=== 768px ===
+  ok /
+  ok /solutions/
+  ok /cheetah-cost/
+  ok /cheetah-time/
+  ok /cheetah-doc/
+  ok /methodologie/
+  ok /plateforme/
+  ok /tarifs/
+  ok /roadmap/
+  ok /contact/
+  ok /mentions-legales/
+  ok /cgv/
+  ok /confidentialite/
+  ok /404.html
+
+=== 1440px ===
+  ok /
+  ok /solutions/
+  ok /cheetah-cost/
+  ok /cheetah-time/
+  ok /cheetah-doc/
+  ok /methodologie/
+  ok /plateforme/
+  ok /tarifs/
+  ok /roadmap/
+  ok /contact/
+  ok /mentions-legales/
+  ok /cgv/
+  ok /confidentialite/
+  ok /404.html
+
+=== 1920px ===
+  ok /
+  ok /solutions/
+  ok /cheetah-cost/
+  ok /cheetah-time/
+  ok /cheetah-doc/
+  ok /methodologie/
+  ok /plateforme/
+  ok /tarifs/
+  ok /roadmap/
+  ok /contact/
+  ok /mentions-legales/
+  ok /cgv/
+  ok /confidentialite/
+  ok /404.html
+
+=== mouvement réduit : ok ===
+
+=== sans WebGL : canvas=0 repliSVG=1 ===
+
+=== parcours clavier ===
+  1. A:Aller au contenu [outline:oui visible:oui]
+  2. A:CheetahSoftCost · Time · D [outline:oui visible:oui]
+  3. BUTTON:Produits [outline:oui visible:oui]
+  4. A:Méthode [outline:oui visible:oui]
+  5. A:Plateforme [outline:oui visible:oui]
+  6. A:Tarifs [outline:oui visible:oui]
+  7. A:Contact [outline:oui visible:oui]
+  8. A:Demander une démonstration [outline:oui visible:oui]
+  9. A:Demander une démonstration [outline:oui visible:oui]
+  10. A:Explorer les logiciels ↓ [outline:oui visible:oui]
+  11. BUTTON:01COST↗ [outline:oui visible:oui]
+  12. BUTTON:02TIME+ [outline:oui visible:oui]
+  13. BUTTON:03DOC+ [outline:oui visible:oui]
+  14. A:Maîtriser les coûts → [outline:oui visible:oui]
+
+=== formulaire : 5 erreurs signalées sur soumission vide ===
+
+════════════════════════════════════════
+AUCUN PROBLEME DETECTE
+Captures : ./verif/

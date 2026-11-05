@@ -1,258 +1,210 @@
-'use client';
+"use client";
 
-/**
- * ACTES 01 → 03 — la séquence signature.
- *
- * Une scène WebGL fixe, trois temps narratifs qui se relaient au défilement :
- *   01 · l'impact — la promesse, les accès
- *   02 · le désordre — pourquoi la dérive échappe au suivi comptable
- *   03 · la convergence — ce que Cheetah remet en ordre
- *
- * Le défilement reste natif : rien n'est capturé, rien n'est accéléré. La
- * progression ne fait que piloter l'opacité des temps et les uniformes de la
- * scène. En mouvement réduit, les trois temps sont empilés en flux normal et
- * la scène est rendue une seule fois, dans son état stable.
- */
+import Link from "next/link";
+import { useState } from "react";
 
-import dynamic from 'next/dynamic';
-import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useScrollProgress } from '@/hooks/useScrollProgress';
-import { coreState } from '@/three/coreState';
-import CoreFallback from '../CoreFallback';
-
-const ControlCore = dynamic(() => import('../ControlCore').then((m) => m.ControlCore), {
-  ssr: false,
-  loading: () => <CoreFallback className="h-full w-full" />,
-});
-
-type Beat = { eyebrow: string; lignes: React.ReactNode[]; texte: string };
-
-const BEATS: Beat[] = [
+const DIMENSIONS = [
   {
-    eyebrow: 'Cheetah · Cost · Time · Doc',
-    lignes: [
-      <>La dérive se voit</>,
-      <>
-        <span className="text-volt">avant</span> de se payer.
-      </>,
-    ],
-    texte:
-      'Cheetah tient la chaîne complète du contrôle de projet : budget à date, avancement physique, valeur acquise, reste à faire, coût prévisionnel, écart. Ligne budgétaire par ligne budgétaire, arrêté après arrêté.',
+    name: "COST",
+    label: "Maîtriser les coûts",
+    color: "#cdf564",
+    metric: "920 k€",
+    detail: "Coût final anticipé",
+    note: "800 k€ de budget à date · +120 k€ d’écart",
+    path: "/cheetah-cost/",
   },
   {
-    eyebrow: 'Acte 02 — Le désordre',
-    lignes: [
-      <>Les dépenses sont à jour.</>,
-      <>
-        <span className="text-amber">L’avancement ne l’est pas.</span>
-      </>,
-    ],
-    texte:
-      'Un projet qui consomme son budget au rythme prévu peut être très en retard sur ce qu’il produit. Sans mesure d’avancement physique, l’écart reste invisible jusqu’au moment où il n’est plus rattrapable.',
+    name: "TIME",
+    label: "Anticiper les délais",
+    color: "#f2a93b",
+    metric: "+12 j",
+    detail: "Décalage du jalon final",
+    note: "Un retard se propage aux tâches dépendantes.",
+    path: "/cheetah-time/",
   },
   {
-    eyebrow: 'Acte 03 — La convergence',
-    lignes: [
-      <>Une référence. Une mesure.</>,
-      <>
-        <span className="text-volt">Une projection.</span>
-      </>,
-    ],
-    texte:
-      'Chaque ligne budgétaire porte sa cible, son avancement réel et sa prévision de coût final. Le faisceau se referme sur le budget à date — et l’écart devient une décision, pas une surprise de fin de chantier.',
+    name: "DOC",
+    label: "Relier les preuves",
+    color: "#e9c9a0",
+    metric: "V03",
+    detail: "Révision de référence",
+    note: "Une décision, une version, une pièce justificative.",
+    path: "/cheetah-doc/",
   },
 ];
 
-/** Titre découpé en lignes, chacune découverte derrière son masque. */
-function TitreMasque({ lignes, className }: { lignes: React.ReactNode[]; className: string }) {
-  return (
-    <span className={`mask-lines ${className}`}>
-      {lignes.map((l, i) => (
-        <span key={i}>
-          <span>{l}</span>
-        </span>
-      ))}
-    </span>
-  );
-}
-
-export function Stage() {
-  const stage = useRef<HTMLDivElement>(null);
-  const beatRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const railRef = useRef<HTMLSpanElement>(null);
-  const [reduced, setReduced] = useState(false);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const sync = () => setReduced(mq.matches);
-    sync();
-    setReady(true);
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
-  }, []);
-
-  const onProgress = useCallback((p: number) => {
-    // Pilotage de la scène : le faisceau se met en ordre entre 18 % et 78 %.
-    coreState.orderTarget = Math.min(Math.max((p - 0.18) / 0.6, 0), 1);
-    coreState.focusTarget = Math.min(Math.max((p - 0.1) / 0.78, 0), 1);
-
-    // Relais des temps narratifs — fenêtres qui se recouvrent légèrement.
-    const windows: [number, number][] = [
-      [-0.2, 0.3],
-      [0.26, 0.64],
-      [0.6, 1.2],
-    ];
-    beatRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const [a, b] = windows[i];
-      const mid = (a + b) / 2;
-      const half = (b - a) / 2;
-      const dist = Math.abs(p - mid) / half;
-      const o = Math.min(Math.max(1 - (dist - 0.52) / 0.42, 0), 1);
-      el.style.opacity = String(o);
-      el.style.transform = `translate3d(0, ${(1 - o) * 26}px, 0)`;
-      el.style.pointerEvents = o > 0.55 ? 'auto' : 'none';
-      el.setAttribute('aria-hidden', o > 0.2 ? 'false' : 'true');
-    });
-
-    if (railRef.current) railRef.current.style.transform = `scaleY(${p})`;
-  }, []);
-
-  useScrollProgress(stage, onProgress, ready && !reduced);
-
-  /* ── Variante mouvement réduit : flux normal, aucun recouvrement ──── */
-  if (ready && reduced) {
-    return (
-      <section className="relative overflow-hidden border-b border-white/[0.07] bg-ink-900">
-        <div className="shell relative pb-16 pt-32 md:pt-40">
-          <p className="eyebrow">{BEATS[0].eyebrow}</p>
-          <h1 className="display-xl mt-6 max-w-[20ch]">
-            <TitreMasque lignes={BEATS[0].lignes} className="" />
-          </h1>
-          <p className="lede mt-6">{BEATS[0].texte}</p>
-          <Actions />
-        </div>
-
-        {/* Scène rendue une seule fois, dans son état stable. */}
-        <div className="relative h-[42vh] min-h-[260px] w-full">
-          <ControlCore className="absolute inset-0" />
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(180deg, rgba(6,8,10,0.9) 0%, rgba(6,8,10,0.1) 35%, rgba(6,8,10,0.1) 65%, rgba(6,8,10,0.95) 100%)',
-            }}
-          />
-        </div>
-
-        <div className="shell relative space-y-20 pb-24">
-          {BEATS.slice(1).map((b, i) => (
-            <div key={i} className="max-w-3xl">
-              <p className="eyebrow">{b.eyebrow}</p>
-              <h2 className="display-lg mt-6">
-                <TitreMasque lignes={b.lignes} className="" />
-              </h2>
-              <p className="lede mt-6">{b.texte}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    );
-  }
-
+export default function Stage() {
+  const [active, setActive] = useState(0);
+  const d = DIMENSIONS[active];
   return (
     <section
-      ref={stage}
-      className="relative h-[320vh] border-b border-white/[0.07] bg-ink-900"
-      aria-label="Présentation de Cheetah"
+      className="precision-hero"
+      aria-label="Présentation de CheetahSoft"
     >
-      <div className="sticky top-0 h-[100svh] overflow-hidden">
-        {/* Recomposition mobile : la scène occupe le bas de l'écran, le texte
-            le haut. Sur grand écran, la scène occupe tout le cadre. */}
-        <div className="absolute inset-x-0 bottom-0 h-[56%] md:inset-0 md:h-full">
-          <ControlCore className="h-full w-full" />
+      <div className="shell">
+        <div className="hero-register">
+          <span>CHEETAHSOFT / CONTRÔLE DE PROJET</span>
+          <span>PRECISION IN MOTION — FR</span>
         </div>
-
-        {/* Lisibilité du texte au-dessus de la scène */}
-        <div
-          className="pointer-events-none absolute inset-0 md:hidden"
-          style={{
-            background:
-              'linear-gradient(180deg, rgba(6,8,10,0.97) 0%, rgba(6,8,10,0.92) 42%, rgba(6,8,10,0.45) 62%, rgba(6,8,10,0.2) 78%, rgba(6,8,10,0.8) 100%)',
-          }}
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute inset-0 hidden md:block"
-          style={{
-            background:
-              'linear-gradient(100deg, rgba(6,8,10,0.94) 0%, rgba(6,8,10,0.74) 32%, rgba(6,8,10,0.1) 62%, rgba(6,8,10,0.55) 100%)',
-          }}
-          aria-hidden="true"
-        />
-
-        <div className="shell relative flex h-full items-start pt-[6.25rem] md:items-center md:pt-0">
-          <div className="relative min-h-[30rem] w-full max-w-[44rem] md:min-h-[27rem] md:pt-10">
-            {BEATS.map((b, i) => (
-              <div
-                key={i}
-                ref={(el) => {
-                  beatRefs.current[i] = el;
-                }}
-                className="absolute inset-0 flex flex-col justify-center"
-                /* Temps narratifs : leur opacité est pilotée par la
-                   progression du défilement, pas par un effet d'entrée. */
-                data-sequence=""
-                style={{ opacity: i === 0 ? 1 : 0, willChange: 'opacity, transform' }}
-              >
-                <p className="eyebrow">{b.eyebrow}</p>
-                {i === 0 ? (
-                  <h1 className="display-xl mt-6">
-                    <TitreMasque lignes={b.lignes} className="" />
-                  </h1>
-                ) : (
-                  <p className="display-lg mt-6" role="heading" aria-level={2}>
-                    <TitreMasque lignes={b.lignes} className="" />
-                  </p>
-                )}
-                <p className="lede mt-6">{b.texte}</p>
-                {i === 0 && <Actions />}
+        <div className="hero-layout">
+          <div className="hero-editorial">
+            <p className="eyebrow">Logiciels pour les projets industriels</p>
+            <h1>
+              La dérive se voit
+              <br />
+              <em>avant</em> de se payer.
+            </h1>
+            <p className="hero-lede">
+              Les coûts. Les délais. Les preuves.
+              <br />
+              Trois lectures pour décider pendant qu’il est encore temps.
+            </p>
+            <p className="hero-description">
+              CheetahSoft relie budget à date, avancement physique et coût
+              prévisionnel. Donnez une mesure à vos décisions de projet.
+            </p>
+            <div className="hero-actions">
+              <Link href="/contact/" className="btn btn-primary">
+                Demander une démonstration <span aria-hidden="true">↗</span>
+              </Link>
+              <Link href="#logiciels" className="hero-text-link">
+                Explorer les logiciels <span aria-hidden="true">↓</span>
+              </Link>
+            </div>
+          </div>
+          <div
+            className="project-instrument"
+            style={{ "--instrument-accent": d.color } as React.CSSProperties}
+          >
+            <div className="instrument-heading">
+              <span>OBJET / PROJET</span>
+              <span>MODÈLE PÉDAGOGIQUE</span>
+            </div>
+            <svg
+              className="project-cutaway"
+              viewBox="0 0 620 480"
+              role="img"
+              aria-label={`Coupe technique des trois dimensions d’un projet. Dimension sélectionnée : ${d.name}.`}
+            >
+              <defs>
+                <pattern
+                  id="instrument-grid"
+                  width="28"
+                  height="16"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M28 0H0V16"
+                    fill="none"
+                    stroke="#9daaba"
+                    strokeWidth=".5"
+                    opacity=".2"
+                  />
+                </pattern>
+                <linearGradient id="instrument-plane" x2="1" y2="1">
+                  <stop stopColor="#263240" />
+                  <stop offset="1" stopColor="#0d1116" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M35 300L300 145L590 305L325 460Z"
+                fill="url(#instrument-grid)"
+                opacity=".65"
+              />
+              <path
+                d="M310 20V380M65 193L555 193"
+                stroke="#9daaba"
+                strokeDasharray="3 7"
+                opacity=".25"
+              />
+              {[2, 1, 0].map((i) => {
+                const y = 100 + i * 77;
+                const on = i === active;
+                return (
+                  <g
+                    key={i}
+                    className={`instrument-layer ${on ? "is-selected" : ""}`}
+                  >
+                    <path
+                      d={`M92 ${y + 75}L310 ${y - 45}L535 ${y + 75}L315 ${y + 196}Z`}
+                      fill="url(#instrument-plane)"
+                      stroke={on ? DIMENSIONS[i].color : "#44515f"}
+                      strokeWidth={on ? 1.6 : 0.8}
+                    />
+                    <path
+                      d={`M92 ${y + 75}V${y + 88}L315 ${y + 209}L535 ${y + 88}V${y + 75}M315 ${y + 196}V${y + 209}`}
+                      fill="none"
+                      stroke={on ? DIMENSIONS[i].color : "#44515f"}
+                      opacity=".65"
+                    />
+                    <path
+                      d={`M150 ${y + 75}L310 ${y - 12}L474 ${y + 75}L315 ${y + 163}Z M207 ${y + 75}L310 ${y + 20}L414 ${y + 75}L315 ${y + 131}Z`}
+                      fill="none"
+                      stroke={DIMENSIONS[i].color}
+                      opacity={on ? ".55" : ".12"}
+                    />
+                    <path
+                      d={`M150 ${y + 75}L230 ${y + 100}L290 ${y + 64}L355 ${y + 87}L420 ${y + 45}L473 ${y + 75}`}
+                      fill="none"
+                      stroke={DIMENSIONS[i].color}
+                      strokeWidth={on ? 3 : 1}
+                      opacity={on ? 1 : 0.25}
+                    />
+                    <circle
+                      cx="355"
+                      cy={y + 87}
+                      r={on ? 5 : 3}
+                      fill={DIMENSIONS[i].color}
+                    />
+                    <text
+                      x="102"
+                      y={y + 61}
+                      fill={on ? DIMENSIONS[i].color : "#9daaba"}
+                      fontSize="12"
+                      fontFamily="monospace"
+                    >
+                      0{i + 1} / {DIMENSIONS[i].name}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+            <div className="instrument-readout" aria-live="polite">
+              <div>
+                <span className="instrument-value">{d.metric}</span>
+                <span className="instrument-unit">{d.detail}</span>
               </div>
-            ))}
+              <p>{d.note}</p>
+            </div>
+            <div
+              className="instrument-controls"
+              aria-label="Choisir une dimension du projet"
+            >
+              {DIMENSIONS.map((item, i) => (
+                <button
+                  key={item.name}
+                  type="button"
+                  aria-pressed={active === i}
+                  onClick={() => setActive(i)}
+                >
+                  <span>0{i + 1}</span>
+                  {item.name}
+                  <span aria-hidden="true">{active === i ? "↗" : "+"}</span>
+                </button>
+              ))}
+            </div>
+            <Link href={d.path} className="instrument-discover">
+              {d.label} <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </div>
-
-        {/* Indicateur de progression de la séquence */}
-        <div className="absolute bottom-10 right-[var(--gutter)] hidden items-center gap-3 md:flex">
-          <span className="font-mono text-[0.625rem] uppercase tracking-[0.22em] text-steel-500">
-            Séquence
-          </span>
-          <span className="relative block h-16 w-px bg-white/15">
-            <span
-              ref={railRef}
-              className="absolute inset-x-0 top-0 block h-full origin-top bg-volt"
-              style={{ transform: 'scaleY(0)' }}
-            />
-          </span>
+        <div className="hero-bottom">
+          <span>Une référence. Une mesure. Une projection.</span>
+          <a href="#lecture">
+            Comprendre la dérive <span aria-hidden="true">↓</span>
+          </a>
         </div>
       </div>
     </section>
   );
 }
-
-function Actions() {
-  return (
-    <div className="mt-9 flex flex-wrap items-center gap-3">
-      <Link href="/contact/" className="btn btn-primary">
-        Demander une démonstration
-      </Link>
-      <Link href="#produit" className="btn btn-ghost">
-        Voir le produit
-      </Link>
-    </div>
-  );
-}
-
-export default Stage;

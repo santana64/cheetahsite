@@ -180,7 +180,7 @@ export function PageHero({
         <p className="eyebrow mt-8" style={{ color: accent }}>
           {eyebrow}
         </p>
-        <h1 className="display-xl mt-6 max-w-[16ch] text-paper">{titre}</h1>
+        <h1 className="display-xl secondary-page-title mt-6 max-w-[20ch] text-paper">{titre}</h1>
         <div className="lede mt-7 max-w-2xl">{chapeau}</div>
         {children}
       </div>

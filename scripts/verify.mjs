@@ -83,6 +83,7 @@ const nav = async (page, route) => {
 };
 
 const navigateur = await chromium.launch({
+  executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
   args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'],
 });
 
@@ -240,18 +241,27 @@ for (const v of LARGEURS) {
   await ctx.close();
 }
 
-/* ── 2. Séquence narrative de l'accueil ─────────────────────────────── */
+/* ── 2. Instrument et lecture interactive ───────────────────────── */
 {
   const ctx = await navigateur.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
   await nav(page, '/');
-  console.log('\n=== séquence 3D ===');
-  for (const [i, p] of [0.06, 0.4, 0.78].entries()) {
-    await page.evaluate((f) => window.scrollTo(0, document.body.scrollHeight * 0.33 * f * 3), p);
-    await page.waitForTimeout(2200);
-    await page.screenshot({ path: path.join(SORTIE, `sequence-${i + 1}.png`) });
-    console.log(`  ok temps ${i + 1}`);
+  for (const [i, name] of ['COST', 'TIME', 'DOC'].entries()) {
+    const control = page.getByRole('button', { name: new RegExp(name) }).first();
+    await control.click();
+    if (await control.getAttribute('aria-pressed') !== 'true') note(`instrument : ${name} non sélectionné`);
+    const expected = ['920 k€', '+12 j', 'V03'][i];
+    if (!(await page.locator('.instrument-value').innerText()).includes(expected)) note(`instrument : métrique ${name} incorrecte`);
+    await page.screenshot({ path: path.join(SORTIE, `instrument-${name.toLowerCase()}.png`) });
   }
+  const slider = page.locator('#reading-progress');
+  await slider.scrollIntoViewIfNeeded();
+  await slider.click();
+  await slider.press('Home');
+  for (let i = 0; i < 5; i++) await slider.press('ArrowRight');
+  try { await page.waitForFunction(() => document.querySelector('.reading-bars')?.textContent.includes('1 200'), { timeout: 3000 }); } catch { note('lecture : coût prévisionnel à 35 % incorrect'); }
+  const bars = await page.locator('.reading-track > span').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().width));
+  if (!(bars[2] > bars[0] && bars[0] > bars[1])) note('lecture : les montants ne partagent pas une échelle cohérente');
   await ctx.close();
 }
 
@@ -294,8 +304,8 @@ for (const v of LARGEURS) {
   await page.screenshot({ path: path.join(SORTIE, 'sans-webgl.png') });
 
   const canvas = await page.evaluate(() => document.querySelectorAll('canvas').length);
-  const svg = await page.evaluate(() => document.querySelectorAll('svg[role="presentation"]').length);
-  if (svg === 0) note('sans WebGL : le repli SVG n’est pas rendu');
+  const svg = await page.evaluate(() => document.querySelectorAll('svg.project-cutaway[role="img"]').length);
+  if (svg === 0) note('sans WebGL : la coupe technique SVG n’est pas rendue');
   console.log(`\n=== sans WebGL : canvas=${canvas} repliSVG=${svg} ===`);
   await ctx.close();
 }
@@ -346,3 +356,5 @@ console.log('\n═════════════════════�
 console.log(probs.length === 0 ? 'AUCUN PROBLEME DETECTE' : `${probs.length} PROBLEME(S) :`);
 probs.forEach((p) => console.log('  - ' + p));
 console.log(`Captures : ./${SORTIE}/`);
+
+process.exitCode = probs.length ? 1 : 0;

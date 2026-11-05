@@ -11,7 +11,9 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
-  const navRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const mobileButton = useRef<HTMLButtonElement>(null);
+  const mobilePanel = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -29,19 +31,59 @@ export function Header() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
+      if (mobile) mobileButton.current?.focus();
+      const trigger = navRef.current?.querySelector<HTMLButtonElement>('button[aria-expanded="true"]');
+      if (openMenu) trigger?.focus();
       setOpenMenu(null);
       setMobile(false);
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
+  }, [mobile, openMenu]);
+
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = mobile ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [mobile]);
+
+  useEffect(() => {
+    if (!mobile) return;
+    mobilePanel.current?.querySelector<HTMLElement>('a')?.focus();
+    const trap = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      const links = mobilePanel.current?.querySelectorAll<HTMLElement>('a, button');
+      const last = links?.[links.length - 1];
+      if (event.shiftKey && document.activeElement === mobileButton.current) {
+        event.preventDefault(); last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); mobileButton.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', trap);
+    return () => document.removeEventListener('keydown', trap);
+  }, [mobile]);
+
+  useEffect(() => () => {
+    if (closeTimer.current) window.clearTimeout(closeTimer.current);
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = mobile ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
+    const resize = () => { if (window.innerWidth >= 1024) setMobile(false); };
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
+
+  useEffect(() => {
+    if (!openMenu) return;
+    const outside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !navRef.current?.contains(event.target)) setOpenMenu(null);
     };
-  }, [mobile]);
+    document.addEventListener('pointerdown', outside);
+    return () => document.removeEventListener('pointerdown', outside);
+  }, [openMenu]);
 
   const scheduleClose = useCallback(() => {
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
@@ -78,7 +120,7 @@ export function Header() {
         </Link>
 
         {/* Navigation desktop */}
-        <div ref={navRef} className="hidden items-center gap-1 lg:flex">
+        <nav ref={navRef} aria-label="Navigation principale" className="hidden items-center gap-1 lg:flex">
           {NAV.map((item) =>
             'enfants' in item && item.enfants ? (
               <div
@@ -89,6 +131,9 @@ export function Header() {
                   setOpenMenu(item.label);
                 }}
                 onMouseLeave={scheduleClose}
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) setOpenMenu(null);
+                }}
               >
                 <button
                   type="button"
@@ -138,6 +183,7 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
                 className={`rounded-sm px-3 py-2 text-sm font-medium transition-colors ${
                   isActive(item.href) ? 'text-volt' : 'text-steel-200 hover:text-paper'
                 }`}
@@ -146,7 +192,7 @@ export function Header() {
               </Link>
             )
           )}
-        </div>
+        </nav>
 
         <div className="hidden lg:block">
           <Link href="/contact/" className="btn btn-primary !min-h-0 !px-4 !py-2.5 !text-[0.8125rem]">
@@ -159,6 +205,7 @@ export function Header() {
           type="button"
           className="-mr-2 flex h-12 w-12 items-center justify-center text-paper lg:hidden"
           aria-expanded={mobile}
+          ref={mobileButton}
           aria-controls="menu-mobile"
           aria-label={mobile ? 'Fermer le menu' : 'Ouvrir le menu'}
           onClick={() => setMobile((v) => !v)}
@@ -187,9 +234,10 @@ export function Header() {
       {mobile && (
         <div
           id="menu-mobile"
+          ref={mobilePanel}
           className="h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-white/[0.07] bg-ink-900 lg:hidden"
         >
-          <nav className="shell flex flex-col py-6">
+          <nav aria-label="Navigation mobile" className="shell flex flex-col py-6">
             {NAV.map((item) => (
               <div key={item.label} className="border-b border-white/[0.06] py-1">
                 <Link

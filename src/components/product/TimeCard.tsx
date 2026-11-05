@@ -49,7 +49,8 @@ export function TimeCard() {
         ))}
       </dl>
 
-      <table className="data-grid">
+      <div className="overflow-x-auto" role="region" aria-label="Tâches relevées sur la capture Time" tabIndex={0}>
+      <table className="data-grid min-w-[440px]">
         <caption className="sr-only">
           Tâches de la structure de découpage du projet, avec date de fin et avancement.
         </caption>
@@ -78,7 +79,16 @@ export function TimeCard() {
           ))}
         </tbody>
       </table>
+      </div>
 
+      <aside className="border-t border-amber/30 bg-amber/[0.04] px-5 py-5 text-sm leading-relaxed text-steel-300 sm:px-7">
+        <strong className="text-amber">Lecture de la source : statut à interpréter.</strong>{' '}
+        La capture affiche simultanément « À risque », 100 % d’avancement, une fin au 6 avril
+        avant la cible du 21 mai et un écart de baseline nul. Elle ne fournit pas la règle
+        qui déclenche ce statut. Ces valeurs sont conservées à l’identique ; elles ne permettent
+        pas, seules, de démontrer une dérive calendaire. Le scénario pédagogique ci-dessous
+        montre séparément une propagation de retard calculable.
+      </aside>
       <p className="border-t border-white/[0.07] px-5 py-3 font-mono text-[0.625rem] leading-relaxed text-steel-500 sm:px-7">
         {TIME_PROJET.source}
       </p>

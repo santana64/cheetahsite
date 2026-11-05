@@ -14,6 +14,7 @@ const ORIGINE = process.argv[2] ?? 'http://localhost:3200';
 const ROUTES = ['/', '/cheetah-cost/', '/methodologie/', '/tarifs/'];
 
 const navigateur = await chromium.launch({
+  executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
   args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'],
 });
 
@@ -40,16 +41,17 @@ for (const route of ROUTES) {
     }
   });
 
+  await page.addInitScript(() => {
+    window.__lab = { lcp: null, cls: 0 };
+    new PerformanceObserver(list => { for (const e of list.getEntries()) window.__lab.lcp = e.startTime; }).observe({ type: 'largest-contentful-paint', buffered: true });
+    new PerformanceObserver(list => { for (const e of list.getEntries()) if (!e.hadRecentInput) window.__lab.cls += e.value; }).observe({ type: 'layout-shift', buffered: true });
+  });
   await page.goto(ORIGINE + route, { waitUntil: 'load' });
   await page.waitForTimeout(3000);
 
   const m = await page.evaluate(() => {
     const fcp = performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? null;
-    const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
-    const lcp = lcpEntries.length ? lcpEntries[lcpEntries.length - 1].startTime : null;
-    const cls = (performance.getEntriesByType('layout-shift') || [])
-      .filter((e) => !e.hadRecentInput)
-      .reduce((a, e) => a + e.value, 0);
+    const { lcp, cls } = window.__lab;
     const nav = performance.getEntriesByType('navigation')[0];
     return {
       fcp,
@@ -83,7 +85,7 @@ for (const route of ROUTES) {
           requestAnimationFrame(tick);
         })
     );
-    console.log(`  cadence de rendu avec la scène 3D visible : ~${fps} images/s`);
+    console.log(`  cadence requestAnimationFrame, accueil SVG : ~${fps} images/s`);
 
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.8));
     await page.waitForTimeout(1500);
@@ -100,7 +102,7 @@ for (const route of ROUTES) {
           requestAnimationFrame(tick);
         })
     );
-    console.log(`  cadence une fois la scène hors écran (rendu suspendu) : ~${fpsBas} images/s`);
+    console.log(`  cadence requestAnimationFrame après défilement : ~${fpsBas} images/s`);
   }
 
   console.log('');

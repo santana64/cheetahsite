@@ -1,0 +1,42 @@
+[
+  {
+    "width": 1440,
+    "bars": [
+      {
+        "width": 383.6875,
+        "style": "width:77.92207792207792%"
+      },
+      {
+        "width": 201.4375,
+        "style": "width:40.90909090909091%"
+      },
+      {
+        "width": 447.640625,
+        "style": "width:90.9090909090909%"
+      }
+    ],
+    "keyboard35": "SCÉNARIO FICTIF · ARRÊTÉ DE PROJET\n\nBudget à date\n800 k€\nDépenses engagées\n420 k€ · 52,5 %\nAvancement physique\n35 % · 280 k€ acquis\nCoût final anticipé\n1 200 k€\n\nDéplacez l’avancement. Les dépenses restent identiques ; la projection change. Hypothèse : la performance constatée se poursuit. CP = dépenses ÷ avancement. Ce modèle pédagogique ne reproduit pas le moteur du logiciel.",
+    "errors": [],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "bars": [
+      {
+        "width": 241.265625,
+        "style": "width:77.92207792207792%"
+      },
+      {
+        "width": 126.65625,
+        "style": "width:40.90909090909091%"
+      },
+      {
+        "width": 281.46875,
+        "style": "width:90.9090909090909%"
+      }
+    ],
+    "keyboard35": "SCÉNARIO FICTIF · ARRÊTÉ DE PROJET\n\nBudget à date\n800 k€\nDépenses engagées\n420 k€ · 52,5 %\nAvancement physique\n35 % · 280 k€ acquis\nCoût final anticipé\n1 200 k€\n\nDéplacez l’avancement. Les dépenses restent identiques ; la projection change. Hypothèse : la performance constatée se poursuit. CP = dépenses ÷ avancement. Ce modèle pédagogique ne reproduit pas le moteur du logiciel.",
+    "errors": [],
+    "overflow": false
+  }
+]
